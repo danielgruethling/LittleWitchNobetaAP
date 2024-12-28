@@ -1,4 +1,7 @@
 using Il2Cpp;
+using LittleWitchNobetaAP.Patches;
+using LittleWitchNobetaAP.Utils;
+using Newtonsoft.Json;
 
 namespace LittleWitchNobetaAP.Archipelago;
 
@@ -18,9 +21,9 @@ public class ArchipelagoSessionData
     /// seed for this archipelago data. Can be used when loading a file to verify the session the player is trying to
     /// load is valid to the room it's connecting to.
     /// </summary>
-    private string seed;
+    private string? seed;
 
-    private Dictionary<string, object> slotData;
+    private Dictionary<string, object>? slotData;
 
     public bool NeedSlotData => slotData == null;
 
@@ -56,17 +59,11 @@ public class ArchipelagoSessionData
         slotData = roomSlotData;
         seed = roomSeed;
 
-        Singletons.Dispatcher.Enqueue(() =>
+        if (StartPatches.CopyrightText != null)
         {
-            if (StartPatches.CopyrightText != null)
-            {
-                StartPatches.CopyrightText.text =
-                    $"""
-                     Archipelago Seed Hash: {seed}
-                     © 2022 Pupuya Games / SimonCreative / Justdan  © 2016 COVER Corp.
-                     """;
-            }
-        });
+            StartPatches.CopyrightText.text =
+                $"Archipelago Seed Hash: {seed ?? string.Empty} \n © 2022 Pupuya Games / SimonCreative / Justdan  © 2016 COVER Corp.";
+        }
     }
 
     /// <summary>

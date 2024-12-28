@@ -1,4 +1,6 @@
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
+using Il2Cpp;
+using LittleWitchNobetaAP.Utils;
 using MelonLoader;
 
 namespace LittleWitchNobetaAP.Archipelago;
@@ -73,11 +75,8 @@ public class DeathLinkHandler
             var cause = string.IsNullOrWhiteSpace(deathLink.Cause) ? GetDeathLinkCause(deathLink) : deathLink.Cause;
 
             // Kill the player
-            Singletons.Dispatcher.Enqueue(() =>
-            {
-                var wizardGirl = Singletons.WizardGirl;
-                wizardGirl.Hit(new() { g_fStrength = float.MaxValue }, true);
-            });
+            var wizardGirl = Singletons.WizardGirl;
+            wizardGirl?.Hit(new AttackData { g_fStrength = float.MaxValue }, true);
 
             Melon<LwnApMod>.Logger.Msg(cause);
         }

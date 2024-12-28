@@ -25,7 +25,7 @@ public static class ArchipelagoConsole
     private static Rect CommandTextRect;
     private static Rect SendCommandButton;
 
-    public static void Awake ()
+    public static void OnInitialize ()
     {
         UpdateWindow();
     }
