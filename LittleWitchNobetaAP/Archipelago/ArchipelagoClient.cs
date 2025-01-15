@@ -2,7 +2,10 @@ using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
+using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
+using Il2Cpp;
+using LittleWitchNobetaAP.Utils;
 using MelonLoader;
 using UnityEngine;
 
@@ -18,7 +21,7 @@ public class ArchipelagoClient : MonoBehaviour
 
     public static readonly ArchipelagoSessionData ServerData = new();
     public DeathLinkHandler? DeathLinkHandler;
-    private ArchipelagoSession? _session;
+    private static ArchipelagoSession? _session;
 
     /// <summary>
     /// call to connect to an Archipelago session. Connection info should already be set up on ServerData
@@ -149,9 +152,199 @@ public class ArchipelagoClient : MonoBehaviour
 
         ServerData.Index++;
 
-        // TODO reward the item here
+        // reward the item here
         // if items can be received while in an invalid state for actually handling them, they can be placed in a local
         // queue to be handled later
+        GiveItem(receivedItem);
+    }
+
+    private static void GiveItem(ItemInfo item)
+    {
+        var itemName = ArchipelagoData.Items.Keys.ToArray()[item.ItemId];
+        var itemGroup = ArchipelagoData.Items[itemName];
+        
+        if (Singletons.SceneManager && Singletons.SceneManager.stageId < 2)
+        {
+            switch (itemGroup)
+            {
+                case "Attack Magics":
+                case "Double Jump":
+                case "Counter":
+                case "Bag Upgrade":
+                    IncrementWitchAbility(itemName);
+                    break;
+                case "Boss Souls":
+                    GiveBossSoul(itemName);
+                    break;
+                case "Filler":
+                    GiveFiller(itemName);
+                    break;
+                default:
+                    break;
+            }
+            
+            var senderName = $"Unknown player {item.Player}";
+            try
+            {
+                senderName = _session?.Players.GetPlayerName(item.Player);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            var senderLocationName = $"Unknown location {item.LocationId}";
+            try
+            {
+                senderName = item.ItemDisplayName;
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            Il2Cpp.Game.AppearEventPrompt($"Got {itemName} from {senderName}'s world ({senderLocationName}).");
+        }
+        else
+        {
+            //TODO queue item here
+        }
+    }
+
+    private static void GiveFiller(string itemName)
+    {
+        switch (itemName)
+        {
+            case "HPCure":
+                GiveGameItem(ItemSystem.ItemType.HPCure);
+                break;
+            case "HPCureMiddle":
+                GiveGameItem(ItemSystem.ItemType.HPCureMiddle);
+                break;
+            case "HPCureBig":
+                GiveGameItem(ItemSystem.ItemType.HPCureBig);
+                break;
+            case "MPCure":
+                GiveGameItem(ItemSystem.ItemType.MPCure);
+                break;
+            case "MPCureMiddle":
+                GiveGameItem(ItemSystem.ItemType.MPCureMiddle);
+                break;
+            case "MPCureBig":
+                GiveGameItem(ItemSystem.ItemType.MPCureBig);
+                break;
+            case "Defense":
+                GiveGameItem(ItemSystem.ItemType.Defense);
+                break;
+            case "DefenseMiddle":
+                GiveGameItem(ItemSystem.ItemType.DefenseM);
+                break;
+            case "DefenseBig":
+                GiveGameItem(ItemSystem.ItemType.DefenseB);
+                break;
+            case "Souls":
+                if (Singletons.WizardGirl != null)
+                    Il2Cpp.Game.CreateSoul(SoulSystem.SoulType.Money, Singletons.WizardGirl.transform.position,
+                        Singletons.RuntimeVariables.Settings.ChestSoulCount);
+                break;
+            case "Trial Key":
+                GiveGameItem(ItemSystem.ItemType.SPMaxAdd);
+                break;
+        }
+    }
+
+    private static void GiveBossSoul(string itemName)
+    {
+        switch (itemName)
+        {
+            case "Specter Armor Soul":
+                ServerData.KilledBosses.Add("Boss_Act01");
+                break;
+            case "Tania Soul":
+                ServerData.KilledBosses.Add("Boss_Level02");
+                break;
+            case "Monica Soul":
+                ServerData.KilledBosses.Add("Boss_Level03_Big");
+                break;
+            case "Enraged Armor Soul":
+                ServerData.KilledBosses.Add("Boss_Act01_Plus");
+                break;
+            case "Vanessa Soul":
+                ServerData.KilledBosses.Add("Boss_Level04");
+                break;
+            case "Vanessa V2 Soul":
+                ServerData.KilledBosses.Add("Boss_Level05");
+                break;
+        }
+    }
+
+    private static void IncrementWitchAbility(string itemName)
+    {
+        switch (itemName)
+        {
+            case "Arcane":
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.secretMagicLevel += 1;
+                break;
+            case "Ice":
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.iceMagicLevel += 1;
+                break;
+            case "Fire":
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.fireMagicLevel += 1;
+                break;
+            case "Thunder":
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.thunderMagicLevel += 1;
+                break;
+            case "Wind":
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.windMagicLevel += 1;
+                break;
+            case "Mana Absorption":
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.manaAbsorbLevel += 1;
+                break;
+            case "Progressive Bag Upgrade":
+                var items = Singletons.WizardGirl?.g_PlayerItem;
+                if (items == null) return;
+                items.g_iItemSize += 1;
+                Singletons.StageUi.itemBar.UpdateItemSize(items.g_iItemSize);
+                Singletons.StageUi.itemBar.UpdateItemSprite(items.g_HoldItem);
+                break;
+        }
+    }
+    
+    private static void GiveGameItem (ItemSystem.ItemType itemType)
+    {
+        var wizardGirl = Singletons.WizardGirl;
+        var items = wizardGirl?.g_PlayerItem;
+
+        if (wizardGirl == null || items == null) return;
+        
+        // Find first empty slot if there's any
+        for (var i = 0 ; i < items.g_iItemSize ; i++)
+        {
+            if (items.g_HoldItem[i] != ItemSystem.ItemType.Null) continue;
+            
+            items.g_HoldItem[i] = itemType;
+            Singletons.StageUi.itemBar.UpdateItemSprite(items.g_HoldItem);
+
+            return;
+        }
+
+        // For trial keys replace first slot that is not a Trial Key and create souls for lost item
+        if (itemType == ItemSystem.ItemType.SPMaxAdd)
+        {
+            for (var i = 0 ; i < items.g_iItemSize ; i++)
+            {
+                if (items.g_HoldItem[i] == ItemSystem.ItemType.SPMaxAdd) continue;
+                
+                items.g_HoldItem[i] = itemType;
+                Singletons.StageUi.itemBar.UpdateItemSprite(items.g_HoldItem);
+                Il2Cpp.Game.CreateSoul(SoulSystem.SoulType.Money, wizardGirl.transform.position, Singletons.RuntimeVariables.Settings.ChestSoulCount);
+
+                return;
+            }
+        }
+
+        // Create souls because item does not fit
+        Il2Cpp.Game.CreateSoul(SoulSystem.SoulType.Money, wizardGirl.transform.position, Singletons.RuntimeVariables.Settings.ChestSoulCount);
     }
 
     /// <summary>

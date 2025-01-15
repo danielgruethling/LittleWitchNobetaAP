@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
-using Il2CppSystem.Linq.Expressions.Interpreter;
 using MelonLoader;
 using UnityEngine;
 
@@ -24,8 +23,6 @@ public static class Singletons
     public static GameUIManager? GameUIManager { get; private set; }
 
     public static bool SaveLoaded => GameSave is not null;
-
-    public static RuntimeVariables? RuntimeVariables { get; set; }
 
     [HarmonyPatch(typeof(Game), nameof(Game.Awake))]
     private static class GameAwake

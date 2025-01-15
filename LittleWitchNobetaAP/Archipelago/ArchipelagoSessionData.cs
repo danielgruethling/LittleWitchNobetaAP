@@ -1,6 +1,5 @@
 using Il2Cpp;
 using LittleWitchNobetaAP.Patches;
-using LittleWitchNobetaAP.Utils;
 using Newtonsoft.Json;
 
 namespace LittleWitchNobetaAP.Archipelago;
@@ -14,8 +13,8 @@ public class ArchipelagoSessionData
     public int Index;
 
     public List<long> CheckedLocations;
-    public List<long> ReceivedItems;
     public Dictionary<long, List<SceneEvent>> StoredEvents;
+    public HashSet<string> KilledBosses { get; init; }
 
     /// <summary>
     /// seed for this archipelago data. Can be used when loading a file to verify the session the player is trying to
@@ -34,8 +33,8 @@ public class ArchipelagoSessionData
         Port = "38281";
         Password = string.Empty;
         CheckedLocations = new List<long>();
-        ReceivedItems = new List<long>();
         StoredEvents = new Dictionary<long, List<SceneEvent>>();
+        KilledBosses = new HashSet<string>();
     }
 
     public ArchipelagoSessionData (string uri, string port, string slotName, string password)
@@ -45,8 +44,8 @@ public class ArchipelagoSessionData
         SlotName = slotName;
         Password = password;
         CheckedLocations = new List<long>();
-        ReceivedItems = new List<long>();
         StoredEvents = new Dictionary<long, List<SceneEvent>>();
+        KilledBosses = new HashSet<string>();
     }
 
     /// <summary>
