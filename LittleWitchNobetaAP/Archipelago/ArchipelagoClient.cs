@@ -43,6 +43,15 @@ public class ArchipelagoClient : MonoBehaviour
         {
             Melon<LwnApMod>.Logger.Error(e);
         }
+        
+        // Before connecting, reset magic levels to 0 and get them from AP
+        Melon<LwnApMod>.Logger.Msg($"Resyncing magic levels");
+        if (Singletons.GameSave != null) Singletons.GameSave.stats.secretMagicLevel = 0;
+        if (Singletons.GameSave != null) Singletons.GameSave.stats.iceMagicLevel = 0;
+        if (Singletons.GameSave != null) Singletons.GameSave.stats.fireMagicLevel = 0;
+        if (Singletons.GameSave != null) Singletons.GameSave.stats.thunderMagicLevel = 0;
+        if (Singletons.GameSave != null) Singletons.GameSave.stats.windMagicLevel = 0;
+        if (Singletons.GameSave != null) Singletons.GameSave.stats.manaAbsorbLevel = 0;
 
         TryConnect();
     }
@@ -163,9 +172,20 @@ public class ArchipelagoClient : MonoBehaviour
     private static void OnItemReceived (ReceivedItemsHelper helper)
     {
         var receivedItem = helper.DequeueItem();
-        Thread.Sleep(100);
+        var itemName = ArchipelagoData.Items.Keys.ToArray()[receivedItem.ItemId - 1];
+        var itemGroup = ArchipelagoData.Items[itemName];
+        Thread.Sleep(20);
 
-        if (helper.Index < ServerData.Index) return;
+        //Resync spell levels even when they were received before, otherwise skip
+        if (helper.Index < ServerData.Index)
+        {
+            if (itemGroup is "Attack Magics" or "Double Jump" or "Counter")
+            {
+                GiveItem(receivedItem);
+            }
+
+            return;
+        }
 
         ServerData.Index++;
 
@@ -180,7 +200,19 @@ public class ArchipelagoClient : MonoBehaviour
         while (PendingItems.Count > 0)
         {
             var itemInfoTuple = PendingItems.Dequeue();
-            if(itemInfoTuple.Item2 <= ServerData.Index) continue;
+            var itemName = ArchipelagoData.Items.Keys.ToArray()[itemInfoTuple.Item1.ItemId - 1];
+            var itemGroup = ArchipelagoData.Items[itemName];
+            
+            //Resync spell levels even when they were received before, otherwise skip
+            if (itemInfoTuple.Item2 <= ServerData.Index)
+            {
+                if (itemGroup is "Attack Magics" or "Double Jump" or "Counter")
+                {
+                    IncrementWitchAbility(itemName);
+                }
+                
+                continue;
+            }
             GiveItem(itemInfoTuple.Item1);
         }
     }
@@ -249,7 +281,6 @@ public class ArchipelagoClient : MonoBehaviour
         }
         else
         {
-            //
             // queue item here
             PendingItems.Enqueue(new Tuple<ItemInfo, int>(item, ServerData.Index));
         }

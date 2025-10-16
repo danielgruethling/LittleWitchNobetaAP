@@ -161,10 +161,10 @@ public static class ItemCheckPatches
             if (!__instance.GetIsDeath()) return;
             
             var descriptiveLocation = ArchipelagoData.GameLocationToDescriptiveLocation(__instance.name);
-            Melon<LwnApMod>.Logger.Msg($"Killed enemy: {__instance.name}");
+            //Melon<LwnApMod>.Logger.Msg($"Killed enemy: {__instance.name}");
             if (descriptiveLocation != string.Empty)
             {
-                Melon<LwnApMod>.Logger.Msg($"Sending enemy location: {descriptiveLocation}");
+                //Melon<LwnApMod>.Logger.Msg($"Sending enemy location: {descriptiveLocation}, {ArchipelagoData.GetLocationIdByName(descriptiveLocation)}");
                 ArchipelagoClient.Session?.Locations.CompleteLocationChecks(
                     ArchipelagoData.GetLocationIdByName(descriptiveLocation));
             }
