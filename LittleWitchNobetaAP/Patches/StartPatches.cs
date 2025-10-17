@@ -1,18 +1,14 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
-using MelonLoader;
-using UnityEngine;
 using UnityEngine.UI;
 
 namespace LittleWitchNobetaAP.Patches;
 
 public static class StartPatches
 {
-    public static Text? CopyrightText { get; private set; }
+    private const string PluginVersion = "0.2.1";
     private static string? GameVersionText { get; set; }
     private static string? RandomizerVersionText { get; set; }
-
-    private const string PluginVersion = "0.2.0";
 
     [HarmonyPatch(typeof(UIOpeningMenu), nameof(UIOpeningMenu.Init))]
     private static class UIOpeningMenuInit

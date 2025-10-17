@@ -216,7 +216,7 @@ public static class ArchipelagoData
         { "Abyss - Lava Ruins trial magic switch", "Barrier" },
         { "Abyss - 94. Knight's Soul Shard in front of lava ruins trial magic switch", "Lore" },
         { "Abyss - 102. Lost Maiden's Crafted Soul Shard from Nonota", "Lore" },
-        { "Abyss - Nonota", "Event" },
+        { "Abyss - Nonota", "Event" }
     };
 
     public static readonly SortedDictionary<string, string> Items = new()
@@ -398,10 +398,22 @@ public static class ArchipelagoData
         { "Spirit Realm - Ice spell Chest Gate", "Metal Gate" },
         { "Lava Ruins Monica Shortcut Gate", "Metal Gate" },
         { "Teleport", "Teleport" },
-        { "Trial Key", "Trial Key" },
+        { "Trial Key", "Trial Key" }
     };
 
-    public static string GameLocationToDescriptiveLocation (string gameLocation)
+    public static readonly Dictionary<string, ItemSystem.ItemType> DescriptiveItemToGameItemMap = new()
+    {
+        { "Arcane", ItemSystem.ItemType.MagicNull },
+        { "Ice", ItemSystem.ItemType.MagicIce },
+        { "Fire", ItemSystem.ItemType.MagicFire },
+        { "Thunder", ItemSystem.ItemType.MagicLightning },
+        { "Wind", ItemSystem.ItemType.SkyJump },
+        { "Mana Absorption", ItemSystem.ItemType.Absorb },
+        { "Progressive Bag Upgrade", ItemSystem.ItemType.BagMaxAdd },
+        { "Souls", ItemSystem.ItemType.Null }
+    };
+
+    public static string GameLocationToDescriptiveLocation(string gameLocation)
     {
         var descriptiveLocation = gameLocation switch
         {
@@ -483,19 +495,13 @@ public static class ArchipelagoData
         return descriptiveLocation;
     }
 
-    public static readonly Dictionary<string, ItemSystem.ItemType> DescriptiveItemToGameItemMap = new()
+    public static long GetLocationIdByName(string name)
     {
-        {"Arcane", ItemSystem.ItemType.MagicNull },
-        {"Ice", ItemSystem.ItemType.MagicIce },
-        {"Fire", ItemSystem.ItemType.MagicFire },
-        {"Thunder", ItemSystem.ItemType.MagicLightning },
-        {"Wind", ItemSystem.ItemType.SkyJump },
-        {"Mana Absorption", ItemSystem.ItemType.Absorb },
-        {"Progressive Bag Upgrade", ItemSystem.ItemType.BagMaxAdd },
-        {"Souls", ItemSystem.ItemType.Null }
-    };
+        return Locations.Keys.ToImmutableSortedSet().IndexOf(name) + 1;
+    }
 
-    public static long GetLocationIdByName (string name) => Locations.Keys.ToImmutableSortedSet().IndexOf(name) + 1;
-
-    public static long GetItemIdByName (string name) => Items.Keys.ToImmutableSortedSet().IndexOf(name) + 1;
+    public static long GetItemIdByName(string name)
+    {
+        return Items.Keys.ToImmutableSortedSet().IndexOf(name) + 1;
+    }
 }

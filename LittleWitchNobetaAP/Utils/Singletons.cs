@@ -54,10 +54,7 @@ public static class Singletons
         {
             Melon<LwnApMod>.Logger.Msg("NobetaSkin disposed");
 
-            if (__instance.Pointer == NobetaSkin?.Pointer)
-            {
-                NobetaSkin = null;
-            }
+            if (__instance.Pointer == NobetaSkin?.Pointer) NobetaSkin = null;
         }
     }
 

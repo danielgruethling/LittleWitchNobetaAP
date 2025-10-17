@@ -6,6 +6,8 @@ namespace LittleWitchNobetaAP.Archipelago;
 // shamelessly stolen from oc2-modding https://github.com/toasterparty/oc2-modding/blob/main/OC2Modding/GameLog.cs
 public static class ArchipelagoConsole
 {
+    private const int MaxLogLines = 80;
+    private const float HideTimeout = 15f;
     private static bool _hidden = true;
 
     private static readonly List<string> LogLines = new();
@@ -18,33 +20,28 @@ public static class ArchipelagoConsole
     private static readonly GUIStyle TextStyle = new();
     private static string _scrollText = "";
     private static float _lastUpdateTime = Time.time;
-    private const int MaxLogLines = 80;
-    private const float HideTimeout = 15f;
 
     private static string _commandText = "!help";
     private static Rect CommandTextRect;
     private static Rect SendCommandButton;
 
-    public static void OnInitialize ()
+    public static void OnInitialize()
     {
         UpdateWindow();
     }
 
-    public static void LogMessage (string message)
+    public static void LogMessage(string message)
     {
         if (string.IsNullOrWhiteSpace(message)) return;
 
-        if (LogLines.Count == MaxLogLines)
-        {
-            LogLines.RemoveAt(0);
-        }
+        if (LogLines.Count == MaxLogLines) LogLines.RemoveAt(0);
         LogLines.Add(message);
         Melon<LwnApMod>.Logger.Msg(message);
         _lastUpdateTime = Time.time;
         UpdateWindow();
     }
 
-    public static void OnGUI ()
+    public static void OnGUI()
     {
         if (LogLines.Count == 0) return;
 
@@ -73,27 +70,21 @@ public static class ArchipelagoConsole
         }*/
     }
 
-    public static void UpdateWindow ()
+    public static void UpdateWindow()
     {
         _scrollText = "";
 
         if (_hidden)
         {
-            if (LogLines.Count > 0)
-            {
-                _scrollText = LogLines[^1];
-            }
+            if (LogLines.Count > 0) _scrollText = LogLines[^1];
         }
         else
         {
-            for (var i = 0 ; i < LogLines.Count ; i++)
+            for (var i = 0; i < LogLines.Count; i++)
             {
                 _scrollText += "> ";
                 _scrollText += LogLines.ElementAt(i);
-                if (i < LogLines.Count - 1)
-                {
-                    _scrollText += "\n\n";
-                }
+                if (i < LogLines.Count - 1) _scrollText += "\n\n";
             }
         }
 
