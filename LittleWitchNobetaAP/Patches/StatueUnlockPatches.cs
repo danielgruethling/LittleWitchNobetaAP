@@ -20,10 +20,11 @@ public static class StatueUnlockPatches
     {
         [HarmonyPostfix]
         // ReSharper disable UnusedMember.Local
-        private static void OnSceneInitCompletePostfix() 
-        // ReSharper restore UnusedMember.Local
+        private static void OnSceneInitCompletePostfix()
+            // ReSharper restore UnusedMember.Local
         {
-            _statues = UnityUtils.FindComponentsByTypeForced<SavePoint>().Where(savePoint => savePoint.EventType == PassiveEvent.PassiveEventType.SavePoint).ToArray();
+            _statues = UnityUtils.FindComponentsByTypeForced<SavePoint>()
+                .Where(savePoint => savePoint.EventType == PassiveEvent.PassiveEventType.SavePoint).ToArray();
         }
     }
 
@@ -33,7 +34,7 @@ public static class StatueUnlockPatches
         [HarmonyPostfix]
         // ReSharper disable UnusedMember.Local
         private static void EnterLoaderScenePostfix()
-        // ReSharper restore UnusedMember.Local
+            // ReSharper restore UnusedMember.Local
         {
             _statues = null;
         }
@@ -45,7 +46,7 @@ public static class StatueUnlockPatches
         [HarmonyPostfix]
         // ReSharper disable InconsistentNaming UnusedMember.Local
         private static void OnWizardGirlUpdatePostfix(WizardGirlManage __instance)
-        // ReSharper restore InconsistentNaming UnusedMember.Local
+            // ReSharper restore InconsistentNaming UnusedMember.Local
         {
             switch (Singletons.SceneManager.stageId)
             {
@@ -58,10 +59,7 @@ public static class StatueUnlockPatches
                     break;
             }
 
-            if (_statues is null)
-            {
-                return;
-            }
+            if (_statues is null) return;
 
             var gameSave = Game.GameSave.basic;
             var stageName = Game.sceneManager.stageName;
@@ -71,16 +69,14 @@ public static class StatueUnlockPatches
             {
                 var savePointNumber = Game.sceneManager.GetSavePointNumber(statue);
 
-                if (gameSave.HasSavePointUnlocked(gameStage, savePointNumber))
-                {
-                    continue;
-                }
+                if (gameSave.HasSavePointUnlocked(gameStage, savePointNumber)) continue;
 
                 var distance = Vector3.Distance(statue.transform.position, __instance.transform.position);
 
                 if (!(distance < UnlockDistance)) continue;
-            
-                Melon<LwnApMod>.Logger.Msg($"Statue '{statue.name}#{statue.TransferLevelNumber}#{savePointNumber}' auto-unlocked");
+
+                Melon<LwnApMod>.Logger.Msg(
+                    $"Statue '{statue.name}#{statue.TransferLevelNumber}#{savePointNumber}' auto-unlocked");
 
                 UnlockStatueInAp($"{stageName};{savePointNumber}");
 
@@ -98,20 +94,17 @@ public static class StatueUnlockPatches
             {
                 var dataStorageContent = ArchipelagoClient.Session?.DataStorage[DataStorageKeyUnlockedStatues];
                 if (ArchipelagoClient.Session is null || dataStorageContent is null) return;
-                
+
                 var unlockedStatues = (await dataStorageContent.GetAsync()).ToObject<string>();
                 if (unlockedStatues is not null)
                 {
-                    if (!unlockedStatues.Contains(statueName))
-                    {
-                        unlockedStatues += $"{StatueKeySeparator}{statueName}";
-                    }
+                    if (!unlockedStatues.Contains(statueName)) unlockedStatues += $"{StatueKeySeparator}{statueName}";
                 }
                 else
                 {
                     unlockedStatues = statueName;
                 }
-                    
+
                 ArchipelagoClient.Session.DataStorage[DataStorageKeyUnlockedStatues] = unlockedStatues;
             }
             catch (Exception e)

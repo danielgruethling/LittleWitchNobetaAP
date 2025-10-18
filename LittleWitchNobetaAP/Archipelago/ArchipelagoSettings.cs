@@ -1,6 +1,4 @@
-﻿using MelonLoader;
-
-namespace LittleWitchNobetaAP.Archipelago;
+﻿namespace LittleWitchNobetaAP.Archipelago;
 
 public class ArchipelagoSettings
 {
@@ -12,10 +10,24 @@ public class ArchipelagoSettings
         BossRush
     }
 
+    public enum MagicPuzzleGateBehaviourType
+    {
+        Vanilla,
+        AlwaysOpen,
+        Randomized
+    }
+
     public enum MagicUpgradeMode
     {
         Vanilla,
         BossKill
+    }
+
+    public enum ShortcutGateBehaviourType
+    {
+        Vanilla,
+        AlwaysOpen,
+        Randomized
     }
 
     public enum StartLevelSetting
@@ -26,23 +38,5 @@ public class ArchipelagoSettings
         LavaRuins,
         DarkTunnel,
         SpiritRealm
-    }
-
-    public enum ShortcutGateBehaviourType
-    {
-        Vanilla,
-        AlwaysOpen,
-        Randomized,
-    }
-
-    public enum MagicPuzzleGateBehaviourType
-    {
-        Vanilla,
-        AlwaysOpen,
-        Randomized,
-    }
-
-    public ArchipelagoSettings()
-    {
     }
 }

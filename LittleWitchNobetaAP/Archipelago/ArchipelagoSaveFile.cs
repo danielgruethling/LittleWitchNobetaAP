@@ -5,9 +5,13 @@ namespace LittleWitchNobetaAP.Archipelago;
 
 public class ArchipelagoSaveFile
 {
-    private static readonly MelonPreferences_Category ArchipelagoSlotInfoCategory = MelonPreferences.CreateCategory("LwnApSaveFileCategory", "LwnApSaveFileCategory", false, false);
+    private static readonly MelonPreferences_Category ArchipelagoSlotInfoCategory =
+        MelonPreferences.CreateCategory("LwnApSaveFileCategory", "LwnApSaveFileCategory", false, false);
+
+    private readonly MelonPreferences_Entry<int> _receivedItemCount =
+        ArchipelagoSlotInfoCategory.CreateEntry("ReceivedItemCount", 0);
+
     private readonly MelonPreferences_Entry<string> _seed = ArchipelagoSlotInfoCategory.CreateEntry("Seed", "-1");
-    private readonly MelonPreferences_Entry<int> _receivedItemCount = ArchipelagoSlotInfoCategory.CreateEntry("ReceivedItemCount",0);
     /*private MelonPreferences_Entry<string> _hostName;
     private MelonPreferences_Entry<string> _slotName;
     private MelonPreferences_Entry<string> _password;
@@ -15,7 +19,7 @@ public class ArchipelagoSaveFile
     private MelonPreferences_Entry<List<long>> _receivedItems;
     private MelonPreferences_Entry<List<long>> _sentLocations;
     private MelonPreferences_Entry<Dictionary<long, List<SceneEvent>>> _storedEvents;*/
-    
+
     public ArchipelagoSaveFile(string seed)
     {
         var saveFilePath = $"UserData/Slot{Singletons.GameSave?.basic.dataIndex}.cfg";
@@ -46,10 +50,10 @@ public class ArchipelagoSaveFile
         _receivedItemCount.Value = itemCount;
     }
 
-    public void Save ()
+    public void Save()
     {
         if (Singletons.GameSave is null) return;
-        
+
         Melon<LwnApMod>.Logger.Msg("Saving archipelago state...");
         ArchipelagoSlotInfoCategory.SaveToFile();
         Melon<LwnApMod>.Logger.Msg("Archipelago state saved");

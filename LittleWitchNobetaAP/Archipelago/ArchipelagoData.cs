@@ -64,7 +64,7 @@ public static class ArchipelagoData
         { "Underground - 16. Test Subject Manacle from barrel after fire", "Lore" },
         { "Underground - Chest after fire", "Chest" },
         { "Underground - After fire magic switch", "Barrier" },
-        { "Underground - Tania", "Bosses" },
+        { "Underground - Defeat Tania", "Bosses" },
         { "Underground - Tania shortcut switch on Tania side", "Metal Gate" },
         { "Underground - 98. Lost Maiden's Soul Shard from Tania", "Lore" },
         { "Lava Ruins - 26. Teddy Bear", "Lore" },
@@ -216,7 +216,7 @@ public static class ArchipelagoData
         { "Abyss - Lava Ruins trial magic switch", "Barrier" },
         { "Abyss - 94. Knight's Soul Shard in front of lava ruins trial magic switch", "Lore" },
         { "Abyss - 102. Lost Maiden's Crafted Soul Shard from Nonota", "Lore" },
-        { "Abyss - Nonota", "Event" },
+        { "Abyss - Nonota", "Event" }
     };
 
     public static readonly SortedDictionary<string, string> Items = new()
@@ -398,10 +398,22 @@ public static class ArchipelagoData
         { "Spirit Realm - Ice spell Chest Gate", "Metal Gate" },
         { "Lava Ruins Monica Shortcut Gate", "Metal Gate" },
         { "Teleport", "Teleport" },
-        { "Trial Key", "Trial Key" },
+        { "Trial Key", "Trial Key" }
     };
 
-    public static string GameLocationToDescriptiveLocation (string gameLocation)
+    public static readonly Dictionary<string, ItemSystem.ItemType> DescriptiveItemToGameItemMap = new()
+    {
+        { "Arcane", ItemSystem.ItemType.MagicNull },
+        { "Ice", ItemSystem.ItemType.MagicIce },
+        { "Fire", ItemSystem.ItemType.MagicFire },
+        { "Thunder", ItemSystem.ItemType.MagicLightning },
+        { "Wind", ItemSystem.ItemType.SkyJump },
+        { "Mana Absorption", ItemSystem.ItemType.Absorb },
+        { "Progressive Bag Upgrade", ItemSystem.ItemType.BagMaxAdd },
+        { "Souls", ItemSystem.ItemType.Null }
+    };
+
+    public static string GameLocationToDescriptiveLocation(string gameLocation)
     {
         var descriptiveLocation = gameLocation switch
         {
@@ -432,7 +444,7 @@ public static class ArchipelagoData
             "04_SkillBookAgain" => "Underground - Cat absorption hint & gift",
             //underground_tania_locations
             "TreasureBox_Room08" => "Underground - Chest after fire",
-            "Boss_Level02" => "Underground - Tania",
+            "Boss_Level02" => "Underground - Defeat Tania",
             // lava_ruins_start_locations
             "Room02_TreasureBox01" => "Lava Ruins - Chest on scaffolding",
             "Room02_TreasureBox02" => "Lava Ruins - Chest on left side lava ledge",
@@ -483,19 +495,13 @@ public static class ArchipelagoData
         return descriptiveLocation;
     }
 
-    public static readonly Dictionary<string, ItemSystem.ItemType> DescriptiveItemToGameItemMap = new()
+    public static long GetLocationIdByName(string name)
     {
-        {"Arcane", ItemSystem.ItemType.MagicNull },
-        {"Ice", ItemSystem.ItemType.MagicIce },
-        {"Fire", ItemSystem.ItemType.MagicFire },
-        {"Thunder", ItemSystem.ItemType.MagicLightning },
-        {"Wind", ItemSystem.ItemType.SkyJump },
-        {"Mana Absorption", ItemSystem.ItemType.Absorb },
-        {"Progressive Bag Upgrade", ItemSystem.ItemType.BagMaxAdd },
-        {"Souls", ItemSystem.ItemType.Null }
-    };
+        return Locations.Keys.ToImmutableSortedSet().IndexOf(name) + 1;
+    }
 
-    public static long GetLocationIdByName (string name) => Locations.Keys.ToImmutableSortedSet().IndexOf(name) + 1;
-
-    public static long GetItemIdByName (string name) => Items.Keys.ToImmutableSortedSet().IndexOf(name) + 1;
+    public static long GetItemIdByName(string name)
+    {
+        return Items.Keys.ToImmutableSortedSet().IndexOf(name) + 1;
+    }
 }

@@ -1,60 +1,53 @@
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
-using Il2Cpp;
 using LittleWitchNobetaAP.Utils;
 using MelonLoader;
-using UnityEngine;
 
 namespace LittleWitchNobetaAP.Archipelago;
 
 public class DeathLinkHandler
 {
     private static bool _deathLinkEnabled;
-    private readonly string _slotName;
-    private readonly DeathLinkService _service;
     private readonly Queue<DeathLink> _deathLinks = new();
+    private readonly DeathLinkService _service;
+    private readonly string _slotName;
 
     /// <summary>
-    /// instantiates our death link handler, sets up the hook for receiving death links, and enables death link if needed
+    ///     instantiates our death link handler, sets up the hook for receiving death links, and enables death link if needed
     /// </summary>
-    /// <param name="deathLinkService">The new DeathLinkService that our handler will use to send and
-    /// receive death links</param>
+    /// <param name="deathLinkService">
+    ///     The new DeathLinkService that our handler will use to send and
+    ///     receive death links
+    /// </param>
     /// <param name="name">Slot name</param>
     /// <param name="enableDeathLink">Whether we should enable death link or not on startup</param>
-    public DeathLinkHandler (DeathLinkService deathLinkService, string name, bool enableDeathLink = false)
+    public DeathLinkHandler(DeathLinkService deathLinkService, string name, bool enableDeathLink = false)
     {
         _service = deathLinkService;
         _service.OnDeathLinkReceived += DeathLinkReceived;
         _slotName = name;
         _deathLinkEnabled = enableDeathLink;
 
-        if (_deathLinkEnabled)
-        {
-            _service.EnableDeathLink();
-        }
+        if (_deathLinkEnabled) _service.EnableDeathLink();
     }
 
     /// <summary>
-    /// enables/disables death link
+    ///     enables/disables death link
     /// </summary>
-    public void ToggleDeathLink ()
+    public void ToggleDeathLink()
     {
         _deathLinkEnabled = !_deathLinkEnabled;
 
         if (_deathLinkEnabled)
-        {
             _service.EnableDeathLink();
-        }
         else
-        {
             _service.DisableDeathLink();
-        }
     }
 
     /// <summary>
-    /// what happens when we receive a deathLink
+    ///     what happens when we receive a deathLink
     /// </summary>
     /// <param name="deathLink">Received Death Link object to handle</param>
-    private void DeathLinkReceived (DeathLink deathLink)
+    private void DeathLinkReceived(DeathLink deathLink)
     {
         _deathLinks.Enqueue(deathLink);
 
@@ -64,10 +57,10 @@ public class DeathLinkHandler
     }
 
     /// <summary>
-    /// can be called when in a valid state to kill the player, dequeueing and immediately killing the player with a
-    /// message if we have a death link in the queue
+    ///     can be called when in a valid state to kill the player, dequeueing and immediately killing the player with a
+    ///     message if we have a death link in the queue
     /// </summary>
-    public void KillPlayer ()
+    public void KillPlayer()
     {
         try
         {
@@ -86,9 +79,9 @@ public class DeathLinkHandler
     }
 
     /// <summary>
-    /// called to send a death link to the multiworld
+    ///     called to send a death link to the multiworld
     /// </summary>
-    public void SendDeathLink ()
+    public void SendDeathLink()
     {
         try
         {

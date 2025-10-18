@@ -1,10 +1,10 @@
-using System.Collections.Immutable;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Packets;
 using HarmonyLib;
 using Il2Cpp;
 using LittleWitchNobetaAP.Archipelago;
 using MelonLoader;
+using Object = UnityEngine.Object;
 
 namespace LittleWitchNobetaAP.Patches;
 
@@ -16,7 +16,7 @@ public static class ItemCheckPatches
         [HarmonyPostfix]
         // ReSharper disable InconsistentNaming UnusedMember.Local
         private static void TreasureBoxInitPostfix(ref TreasureBox __instance)
-        // ReSharper restore InconsistentNaming UnusedMember.Local
+            // ReSharper restore InconsistentNaming UnusedMember.Local
         {
             // remove chest contents
             __instance.ItemType = ItemSystem.ItemType.Null;
@@ -32,20 +32,16 @@ public static class ItemCheckPatches
             // ReSharper restore InconsistentNaming UnusedMember.Local
         {
             if (!ArchipelagoClient.IsAuthenticated || ArchipelagoClient.Session is null) return;
-            
+
             // Special exception because TreasureBox instance name TreasureBox_Room03 exists twice
             if (Game.sceneManager.stageId == 3 && __instance.name == "TreasureBox_Room03")
-            {
                 ArchipelagoClient.Session.Locations.CompleteLocationChecks(
                     ArchipelagoClient.Session.Locations.GetLocationIdFromName(
                         "Little Witch Nobeta", "Underground - Chest in alcove before falling rocks"));
-            }
             else
-            {
                 ArchipelagoClient.Session.Locations.CompleteLocationChecks(
                     ArchipelagoClient.Session.Locations.GetLocationIdFromName("Little Witch Nobeta",
                         ArchipelagoData.GameLocationToDescriptiveLocation(__instance.name)));
-            }
         }
     }
 
@@ -55,16 +51,14 @@ public static class ItemCheckPatches
         [HarmonyPrefix]
         // ReSharper disable InconsistentNaming UnusedMember.Local
         private static bool CatEventOpenEventPrefix(CatEvent __instance)
-        // ReSharper restore InconsistentNaming UnusedMember.Local
+            // ReSharper restore InconsistentNaming UnusedMember.Local
         {
             if (__instance.name is "04_CatAbsorbSkill" or "04_SkillBookAgain"
                 && ArchipelagoClient.IsAuthenticated
                 && ArchipelagoClient.Session is not null)
-            {
                 ArchipelagoClient.Session.Locations.CompleteLocationChecks(
                     ArchipelagoClient.Session.Locations.GetLocationIdFromName("Little Witch Nobeta",
                         ArchipelagoData.GameLocationToDescriptiveLocation(__instance.name)));
-            }
 
             return false;
         }
@@ -77,16 +71,16 @@ public static class ItemCheckPatches
         [HarmonyPostfix]
         // ReSharper disable InconsistentNaming UnusedMember.Local
         private static void LoadScriptInitPostfix(SceneEvent __instance, SceneEventManager SEM)
-        // ReSharper restore InconsistentNaming UnusedMember.Local
+            // ReSharper restore InconsistentNaming UnusedMember.Local
         {
             if (__instance.name is not "LoadScriptRoomBossEnd"
                 || !ArchipelagoClient.IsAuthenticated
                 || ArchipelagoClient.Session is null) return;
-            
+
             var loadScript = __instance.Cast<LoadScript>();
             var newEvents = loadScript.Event.SkipLast(1).ToArray();
             loadScript.Event = newEvents;
-                
+
             ArchipelagoClient.Session.Locations.CompleteLocationChecks(
                 ArchipelagoClient.Session.Locations.GetLocationIdFromName(
                     "Little Witch Nobeta", "Spirit Realm - Thunder spell from Vanessa V2"));
@@ -95,33 +89,33 @@ public static class ItemCheckPatches
                     "Little Witch Nobeta", "Spirit Realm - 101. Proud King's Crafted Soul Shard from Vanessa V2"));
         }
     }
-    
+
     // Item pickup
     [HarmonyPatch(typeof(PlayerItem), nameof(PlayerItem.PickUp))]
     private static class PlayerItemPickUp
     {
         [HarmonyPrefix]
         // ReSharper disable InconsistentNaming UnusedMember.Local
-        private static bool ItemPickUpPrefix(PlayerItem __instance) 
-        // ReSharper restore InconsistentNaming UnusedMember.Local
+        private static bool ItemPickUpPrefix(PlayerItem __instance)
+            // ReSharper restore InconsistentNaming UnusedMember.Local
         {
             Melon<LwnApMod>.Logger.Msg($"Picked up item {__instance.GetItemData().name}");
             if (!__instance.GetItemData().name.Contains("Item_Property")) return true;
             Melon<LwnApMod>.Logger.Msg($"Item property ID:  {__instance.GetItemData().GetPropertyID()}");
-            
+
             if (ArchipelagoClient.IsAuthenticated && ArchipelagoClient.Session is not null)
             {
-                var loreItems = 
+                var loreItems =
                     from item in ArchipelagoData.Items
                     where item.Value == "Lore"
-                    orderby int.Parse(new string(item.Key.TakeWhile(char.IsDigit).ToArray())) 
+                    orderby int.Parse(new string(item.Key.TakeWhile(char.IsDigit).ToArray()))
                     select item.Key;
-                
+
                 var loreItem = loreItems.ElementAt(__instance.GetItemData().GetPropertyID());
 
                 if (loreItem is not null)
                 {
-                    var locationName = 
+                    var locationName =
                         (from item in ArchipelagoData.Locations.Keys
                             where item.Contains(loreItem)
                             select item).FirstOrDefault();
@@ -138,17 +132,18 @@ public static class ItemCheckPatches
                 }
                 else
                 {
-                    Melon<LwnApMod>.Logger.Error($"Did not find a lore item with id: {__instance.GetItemData().GetPropertyID() + 1}");
+                    Melon<LwnApMod>.Logger.Error(
+                        $"Did not find a lore item with id: {__instance.GetItemData().GetPropertyID() + 1}");
                 }
             }
-            
+
             MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
-            UnityEngine.Object.Destroy(__instance.GetItemData().gameObject)));
+                Object.Destroy(__instance.GetItemData().gameObject)));
 
             return false;
         }
     }
-    
+
     // Bosses
     [HarmonyPatch(typeof(NPCManage), nameof(NPCManage.Hit))]
     private static class NpcManageHit
@@ -156,18 +151,16 @@ public static class ItemCheckPatches
         [HarmonyPostfix]
         // ReSharper disable InconsistentNaming UnusedMember.Local
         private static void NpcManageHitPostfix(NPCManage __instance)
-        // ReSharper restore InconsistentNaming UnusedMember.Local
+            // ReSharper restore InconsistentNaming UnusedMember.Local
         {
             if (!__instance.GetIsDeath()) return;
-            
+
             var descriptiveLocation = ArchipelagoData.GameLocationToDescriptiveLocation(__instance.name);
-            Melon<LwnApMod>.Logger.Msg($"Killed enemy: {__instance.name}");
+            //Melon<LwnApMod>.Logger.Msg($"Killed enemy: {__instance.name}");
             if (descriptiveLocation != string.Empty)
-            {
-                Melon<LwnApMod>.Logger.Msg($"Sending enemy location: {descriptiveLocation}");
+                //Melon<LwnApMod>.Logger.Msg($"Sending enemy location: {descriptiveLocation}, {ArchipelagoData.GetLocationIdByName(descriptiveLocation)}");
                 ArchipelagoClient.Session?.Locations.CompleteLocationChecks(
                     ArchipelagoData.GetLocationIdByName(descriptiveLocation));
-            }
 
             switch (__instance.name)
             {
@@ -189,9 +182,10 @@ public static class ItemCheckPatches
                     {
                         Status = ArchipelagoClientState.ClientGoal
                     };
-                
+
                     ArchipelagoClient.Session?.Locations.CompleteLocationChecks(
-                        ArchipelagoData.GetLocationIdByName("Abyss - 102. Lost Maiden's Crafted Soul Shard from Nonota"));
+                        ArchipelagoData.GetLocationIdByName(
+                            "Abyss - 102. Lost Maiden's Crafted Soul Shard from Nonota"));
                     ArchipelagoClient.Session?.Socket.SendPacket(statusUpdatePacket);
                     break;
                 }

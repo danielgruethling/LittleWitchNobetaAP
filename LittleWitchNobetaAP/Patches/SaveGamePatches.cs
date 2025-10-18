@@ -1,7 +1,7 @@
 using HarmonyLib;
 using Il2Cpp;
-using MelonLoader;
 using LittleWitchNobetaAP.Archipelago;
+using MelonLoader;
 
 namespace LittleWitchNobetaAP.Patches;
 
@@ -20,7 +20,7 @@ public static class SaveGamePatches
             return true;
         }
     }
-    
+
     [HarmonyPatch(typeof(UIGameSave), nameof(UIGameSave.LoadGameSave))]
     private static class UIGameSaveLoadGameSave
     {
@@ -43,13 +43,10 @@ public static class SaveGamePatches
         {
             Melon<LwnApMod>.Logger.Msg($"Triggered archipelago delete data save on delete game save, index: {index}");
             var saveFilePath = $"UserData/Slot{index + 1}.cfg";
-            if (File.Exists(saveFilePath))
-            {
-                File.Delete(saveFilePath);
-            }
+            if (File.Exists(saveFilePath)) File.Delete(saveFilePath);
         }
     }
-    
+
     [HarmonyPatch(typeof(Game), nameof(Game.WriteGameSave), new Type[] { })]
     private static class GameWriteGameSave
     {

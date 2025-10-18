@@ -20,7 +20,7 @@ public static class TeleportMenuPatches
         [HarmonyPostfix]
         // ReSharper disable InconsistentNaming UnusedMember.Local
         private static void UITeleportInitPostfix(UITeleport __instance)
-        // ReSharper restore InconsistentNaming UnusedMember.Local
+            // ReSharper restore InconsistentNaming UnusedMember.Local
         {
             var root = __instance.transform;
 
@@ -39,7 +39,8 @@ public static class TeleportMenuPatches
             grid.spacing = new Vector2(10f, 10f);
 
             // Store top handlers for later use
-            _topHandlers = Enumerable.Range(0, handlers.childCount).Select(index => handlers.GetChild(index).gameObject).ToArray();
+            _topHandlers = Enumerable.Range(0, handlers.childCount).Select(index => handlers.GetChild(index).gameObject)
+                .ToArray();
 
             // Change how handlers are navigated to allow better controller support
             var uiHandlers = handlers.GetComponentsInChildren<UITeleportHandler>(true);
@@ -52,7 +53,7 @@ public static class TeleportMenuPatches
             var stage6Handlers = uiHandlers.Where(uiHandler => uiHandler.name.StartsWith("Handler_6")).ToArray();
 
             // Vertical navigation
-            for (var i = 0 ; i < stage4Handlers.Length ; i++)
+            for (var i = 0; i < stage4Handlers.Length; i++)
             {
                 stage4Handlers[i].selectDown = stage5Handlers[i];
                 stage5Handlers[i].selectUp = stage4Handlers[i];
@@ -74,7 +75,7 @@ public static class TeleportMenuPatches
             _firstStage1Handler = stage1Handlers[0];
             _firstStage6Handler = stage6Handlers[0];
 
-            
+
             Melon<LwnApMod>.Logger.Msg("Patched ui teleport menu");
         }
     }
@@ -85,14 +86,11 @@ public static class TeleportMenuPatches
         [HarmonyPostfix]
         // ReSharper disable UnusedMember.Local
         private static void UITeleportAppearPostfix()
-        // ReSharper restore UnusedMember.Local
+            // ReSharper restore UnusedMember.Local
         {
             if (_topHandlers == null || _returnHandler == null || _exitHandler == null) return;
-            
-            foreach (var topHandler in _topHandlers)
-            {
-                topHandler.SetActive(true);
-            }
+
+            foreach (var topHandler in _topHandlers) topHandler.SetActive(true);
 
             _returnHandler.selectDown = _firstStage1Handler;
             _returnHandler.selectUp = _firstStage6Handler;
