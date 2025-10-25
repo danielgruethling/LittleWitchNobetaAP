@@ -5,7 +5,7 @@ namespace LittleWitchNobetaAP.Archipelago;
 
 public static class ArchipelagoData
 {
-    public static readonly SortedDictionary<string, string> Locations = new()
+    public static readonly SortedDictionary<string, string> Locations = new(StringComparer.Ordinal)
     {
         { "Shrine - 6. Broken Cross Spear from first ranged Enemy", "Lore" },
         { "Shrine - 1. Crafted Soul Reader from pot in side alcove", "Lore" },
@@ -219,7 +219,7 @@ public static class ArchipelagoData
         { "Abyss - Nonota", "Event" }
     };
 
-    public static readonly SortedDictionary<string, string> Items = new()
+    public static readonly SortedDictionary<string, string> Items = new(StringComparer.Ordinal)
     {
         { "Arcane", "Attack Magics" },
         { "Ice", "Attack Magics" },
