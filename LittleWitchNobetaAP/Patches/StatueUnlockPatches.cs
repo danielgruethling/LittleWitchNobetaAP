@@ -73,8 +73,8 @@ public static class StatueUnlockPatches
 
                 var distance = Vector3.Distance(statue.transform.position, __instance.transform.position);
 
-                if (!(distance < UnlockDistance)) continue;
-
+                if (!(distance < UnlockDistance) && (statue.name != "EventPointRoom02" || !(distance < 500f))) continue;
+                
                 Melon<LwnApMod>.Logger.Msg(
                     $"Statue '{statue.name}#{statue.TransferLevelNumber}#{savePointNumber}' auto-unlocked");
 

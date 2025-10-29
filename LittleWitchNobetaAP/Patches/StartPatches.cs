@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
+using MelonLoader;
 using UnityEngine.UI;
 
 namespace LittleWitchNobetaAP.Patches;
@@ -28,6 +29,34 @@ public static class StartPatches
             RandomizerVersionText = $"Ver {PluginVersion}";
 
             versionText.text = $"Game: {GameVersionText} Randomizer: {RandomizerVersionText}";
+        }
+    }
+
+    [HarmonyPatch(typeof(UIPauseMenu), nameof(UIPauseMenu.Init))]
+    private static class UIPauseMenuInit
+    {
+        [HarmonyPostfix]
+        private static void PauseMenuInitPostfix(UIPauseMenu __instance)
+        {
+            for (int i = 0; i < __instance.transform.childCount; i++)
+            {
+                var child = __instance.transform.GetChild(i).gameObject;
+                Melon<LwnApMod>.Logger.Msg($"PauseItem: {child.name}");
+            }
+            
+            var handlers = __instance.transform.Find("Handlers");
+            for (int i = 0; i < handlers.childCount; i++)
+            {
+                var child = handlers.GetChild(i).gameObject;
+                Melon<LwnApMod>.Logger.Msg($"HandlerItem: {child.name}");
+            }
+            
+            var reload = __instance.transform.Find("Handlers/Reload").gameObject;
+            var gameStats = __instance.transform.Find("Handlers/GameStats").gameObject.GetComponent<UILabelHandler>();
+            var quit = __instance.transform.Find("Handlers/Quit").gameObject.GetComponent<UILabelHandler>();
+            UnityEngine.Object.Destroy(reload.gameObject);
+            gameStats.selectDown = quit;
+            quit.selectUp = gameStats;
         }
     }
 }
