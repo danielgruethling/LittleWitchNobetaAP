@@ -240,6 +240,9 @@ public class ArchipelagoClient : MonoBehaviour
                 case "Filler":
                     GiveFiller(itemName);
                     break;
+                case "Trap":
+                    GiveTrap(itemName);
+                    break;
                 case "Lore":
                     GiveLore(itemName);
                     break;
@@ -359,6 +362,19 @@ public class ArchipelagoClient : MonoBehaviour
                 break;
             case "Trial Key":
                 GiveGameItem(ItemSystem.ItemType.SPMaxAdd);
+                break;
+        }
+    }
+
+    private static void GiveTrap(string itemName)
+    {
+        switch (itemName)
+        {
+            case "Bonk Trap":
+                TrapPatches.QueueBonkTrap();
+                break;
+            case "Mana Drain Trap":
+                TrapPatches.QueueManaDrainTrap();
                 break;
         }
     }
