@@ -133,6 +133,8 @@ public class ArchipelagoClient : MonoBehaviour
                         break;
                 }
             }
+
+            BarrierPatches.ExecuteAllStageBarrierActions();
         }
         else
         {
@@ -176,15 +178,30 @@ public class ArchipelagoClient : MonoBehaviour
     /// <param name="helper">item helper which we can grab our item from</param>
     private static void OnItemReceived(ReceivedItemsHelper helper)
     {
+        Melon<LwnApMod>.Logger.Msg($"Called OnItemReceived.");
         var receivedItem = helper.DequeueItem();
+        Melon<LwnApMod>.Logger.Msg($"OnItemReceived: receivedItem {receivedItem.ItemName}");
         var itemName = ArchipelagoData.Items.Keys.ToArray()[receivedItem.ItemId - 1];
+        Melon<LwnApMod>.Logger.Msg($"OnItemReceived: name {itemName}");
         var itemGroup = ArchipelagoData.Items[itemName];
+        Melon<LwnApMod>.Logger.Msg($"OnItemReceived: group {itemGroup}");
         Thread.Sleep(20);
 
+        Melon<LwnApMod>.Logger.Msg($"OnItemReceived: helperindex {helper.Index}");
+        Melon<LwnApMod>.Logger.Msg($"OnItemReceived: ServerDataIndex {ServerData.Index}");
         //Resync spell levels even when they were received before, otherwise skip
         if (helper.Index < ServerData.Index)
         {
-            if (itemGroup is "Attack Magics" or "Double Jump" or "Counter") GiveItem(receivedItem);
+            switch (itemGroup)
+            {
+                case "Attack Magics":
+                case "Double Jump":
+                case "Counter":
+                case "Magic Barrier":
+                case "Metal Gate":
+                    GiveItem(receivedItem);
+                    break;
+            }
 
             return;
         }
@@ -245,6 +262,10 @@ public class ArchipelagoClient : MonoBehaviour
                     break;
                 case "Lore":
                     GiveLore(itemName);
+                    break;
+                case "Magic Barrier":
+                case "Metal Gate":
+                    BarrierPatches.OpenBarrierByItemName(itemName);
                     break;
             }
 
