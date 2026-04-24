@@ -21,6 +21,7 @@ public class ArchipelagoSessionData
     public string Port;
     public string SlotName;
     public Dictionary<long, List<SceneEvent>> StoredEvents;
+    public ArchipelagoSettings? Settings;
 
     public ArchipelagoSessionData()
     {
@@ -72,6 +73,7 @@ public class ArchipelagoSessionData
         _seed = roomSeed;
 
         ArchipelagoClient.ApSaveFile = new ArchipelagoSaveFile(_seed);
+        this.Settings = new ArchipelagoSettings(_slotData);
     }
 
     /// <summary>
