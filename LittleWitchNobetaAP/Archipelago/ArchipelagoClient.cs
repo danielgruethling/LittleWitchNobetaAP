@@ -9,6 +9,7 @@ using LittleWitchNobetaAP.Patches;
 using LittleWitchNobetaAP.Utils;
 using MelonLoader;
 using UnityEngine;
+using Random = System.Random;
 
 namespace LittleWitchNobetaAP.Archipelago;
 
@@ -26,6 +27,7 @@ public class ArchipelagoClient : MonoBehaviour
     public static ArchipelagoSession? Session { get; private set; }
 
     private static Queue<Tuple<ItemInfo, int>> PendingItems { get; } = new();
+    private static readonly Random Random = new();
 
     /// <summary>
     ///     call to connect to an Archipelago session. Connection info should already be set up on ServerData
@@ -307,6 +309,14 @@ public class ArchipelagoClient : MonoBehaviour
         }
     }
 
+    private static void GiveSouls(SoulSystem.SoulType soulType, int numSouls)
+    {
+        if (Singletons.WizardGirl != null)
+            MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
+                Il2Cpp.Game.CreateSoul(soulType,
+                    Singletons.WizardGirl.transform.position, numSouls)));
+    }
+
     private static void GiveFiller(string itemName)
     {
         switch (itemName)
@@ -339,10 +349,13 @@ public class ArchipelagoClient : MonoBehaviour
                 GiveGameItem(ItemSystem.ItemType.DefenseB);
                 break;
             case "Souls":
-                if (Singletons.WizardGirl != null)
-                    MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
-                        Il2Cpp.Game.CreateSoul(SoulSystem.SoulType.Money,
-                            Singletons.WizardGirl.transform.position, 400)));
+                GiveSouls(SoulSystem.SoulType.Money, 400);
+                break;
+            case "HPSouls":
+                GiveSouls(SoulSystem.SoulType.HP, Random.Next(1, 400));
+                break;
+            case "MPSouls":
+                GiveSouls(SoulSystem.SoulType.MP, Random.Next(1, 400));
                 break;
             case "Trial Key":
                 GiveGameItem(ItemSystem.ItemType.SPMaxAdd);
