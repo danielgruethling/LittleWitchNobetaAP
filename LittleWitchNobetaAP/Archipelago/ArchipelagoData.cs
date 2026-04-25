@@ -1467,6 +1467,7 @@ public static class ArchipelagoData
                     // which could potentially cause an unbeatable state.
                     new SpecialAction(() =>
                     {
+                        if (!(Singletons.GameSave?.flags.stage03Clear ?? false)) return;
                         var wallCollision = UnityUtils.FindObjectByPath("/SceneManager/EnemyEffect/MagicWall(Clone)");
                         if (wallCollision is null) return;
                         wallCollision.transform.position = new Vector3(-132.6f, -20f, 320f);
