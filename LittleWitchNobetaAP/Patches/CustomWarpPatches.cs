@@ -128,6 +128,26 @@ public static class CustomWarpPatches
         {
             mushroomInFrontOfDoor.active = false;
         }
+
+        // Add staircase before Tania arena to allow backwards movement (normally a one-way drop)
+        var stairTemplate = UnityUtils.FindObjectByPath("/Scene/Room06/StaticObject/new/Floor/Stair_02");
+        var stairCopy1 = Object.Instantiate(stairTemplate);
+        var stairCopy2 = Object.Instantiate(stairTemplate);
+        if (stairCopy1 is null || stairCopy2 is null) return;
+        stairCopy1.name = "TaniaArenaStaircase1";
+        stairCopy1.transform.localScale = new Vector3(1f, 1.2f, 1f);
+        stairCopy1.transform.position = new Vector3(145.6f, 11.1f, -13.8f);
+        var stairCopy1Renderer = stairCopy1.GetComponent<MeshRenderer>();
+        stairCopy1Renderer.enabled = true;
+        stairCopy1Renderer.lightmapIndex = 5;
+
+        stairCopy2.name = "TaniaArenaStaircase2";
+        stairCopy2.transform.localScale = new Vector3(1f, 1.2f, 1f);
+        stairCopy2.transform.position = new Vector3(151.13f, 6.6f, -13.8f);
+        stairCopy2.GetComponent<MeshRenderer>().enabled = true;
+        var stairCopy2Renderer = stairCopy2.GetComponent<MeshRenderer>();
+        stairCopy2Renderer.enabled = true;
+        stairCopy2Renderer.lightmapIndex = 5;
     }
 
     private static void AddCustomWarpToUnderground()
@@ -188,6 +208,35 @@ public static class CustomWarpPatches
             return;
         }
 
+        // Move the door exit from Tania arena to inside of statue pit. This is to prevent logic issues with Teleport,
+        // e.g. the user enters Lava Ruins, plays cutscene forcing player into statue pit, then teleport back to
+        // underground grand hall statue and return to lava ruins without cutscene trigger, breaking region logic.
+        // This is only done if player does not have Monica Warp Gate item if gates are randomized, otherwise checks
+        // if Monica has been defeated.
+        if (ArchipelagoClient.IsAuthenticated && ArchipelagoClient.Session is not null &&
+            ArchipelagoClient.ServerData.Settings is not null && Singletons.GameSave is not null)
+        {
+            var isGateRandomized = ArchipelagoClient.ServerData.Settings.ShortcutGateBehaviour ==
+                                   ArchipelagoSettings.ShortcutGateBehaviourType.Randomized;
+            if (isGateRandomized &&
+                ArchipelagoClient.Session.Items.AllItemsReceived.All(item =>
+                    item.ItemName != "Lava Ruins Monica Warp Gate")
+                || (!isGateRandomized && !Singletons.GameSave.flags.stage03Clear))
+            {
+                var doorToUndergroundRebirthPoint =
+                    UnityUtils.FindObjectByPath("/Scene/Room01ToLevel02/Special/SavePointTransfer/RebirthPoint");
+                if (doorToUndergroundRebirthPoint is not null)
+                {
+                    // Position around the front of statue in lobby pit
+                    doorToUndergroundRebirthPoint.transform.position = new Vector3(-28f, -4f, 33f);
+                    doorToUndergroundRebirthPoint.transform.rotation = Quaternion.Euler(0, 270, 0);
+                }
+            }
+
+        }
+
+        // Create warp points for Monica arena to prevent softlocking if user doesn't have Monica warp gates or
+        // Monica magic wall when respectively randomized
         var template =
             UnityUtils.FindObjectByPath("/Scene/Room01ToLevel02/Special/SavePointTransfer");
 
