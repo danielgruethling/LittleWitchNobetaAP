@@ -1477,10 +1477,37 @@ public static class ArchipelagoData
             },
             new StageLoadAction()
             {
+                // This barrier only activates when entering the room from the front.
+                StageId = StageId.DarkTunnel,
+                ItemName = "Dark Tunnel Light Switch Barrier",
+                Actions = new ()
+                {
+                    new MagicWallStartAction()
+                        { StageId = StageId.DarkTunnel, Path = "/SEM/AreaEvent/Room01To04/Other/MagicWall (1)" },
+                }
+            },
+            new StageLoadAction()
+            {
+                // These barriers only activate when entering the room from the front.
+                StageId = StageId.DarkTunnel,
+                ItemName = "Dark Tunnel Thunder Barrier",
+                Actions = new ()
+                {
+                    new MagicWallStartAction()
+                        { StageId = StageId.DarkTunnel, Path = "/SEM/AreaEvent/Room06/Other/MagicWall (4)" },
+                    new MagicWallStartAction()
+                        { StageId = StageId.DarkTunnel, Path = "/SEM/AreaEvent/Room06/Other/MagicWall (5)" },
+                    new MagicWallStartAction()
+                        { StageId = StageId.DarkTunnel, Path = "/SEM/AreaEvent/Room06/Other/MagicWall (6)" },
+                }
+            },
+            new StageLoadAction()
+            {
                 StageId = StageId.SpiritRealm,
                 ItemName = "Spirit Realm Fire Deactivation",
                 Actions = new()
                 {
+                    // Normally only starts after first switch is destroyed and elevator activates
                     new FireTrapStartAction() { Path = "/SEM/AreaEvent/Room07/Other/FireTrap01" },
                     new FireTrapStartAction() { Path = "/SEM/AreaEvent/Room07/Other/FireTrap02" },
                     new FireTrapStartAction() { Path = "/SEM/AreaEvent/Room07/Other/FireTrap03" },
