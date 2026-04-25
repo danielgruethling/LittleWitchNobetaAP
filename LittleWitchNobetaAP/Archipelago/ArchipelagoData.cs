@@ -21,6 +21,13 @@ public class StageLoadAction
     public List<BarrierAction> Actions { get; init; } = new();
 }
 
+public class CutsceneTrigger
+{
+    public StageId StageId { get; init; }
+    public string Trigger { get; init; } = "";
+    public Func<bool> ShouldSkip { get; init; } = () => true;
+}
+
 public static class ArchipelagoData
 {
     public static readonly SortedDictionary<string, string> Locations = new(StringComparer.Ordinal)
@@ -1543,5 +1550,69 @@ public static class ArchipelagoData
     public static long GetItemIdByName(string name)
     {
         return Items.Keys.ToImmutableSortedSet().IndexOf(name) + 1;
+    }
+
+    public static class CutscenesToSkip
+    {
+        public static readonly List<CutsceneTrigger> Cutscenes = new()
+        {
+            // Skips cutscene before Tania when walking through the hall with broken dolls
+            new CutsceneTrigger()
+            {
+                StageId = StageId.Underground,
+                Trigger = "/SEM/AreaEvent/Room09/Other/LoadScript",
+            },
+            // Removes cutscene from entering Lava Ruins from Underground, which forces player into statue pit
+            // This has to be paired with moving the rebirth point of the Underground door (or logic will need
+            // to be modified)
+            new CutsceneTrigger()
+            {
+                StageId = StageId.LavaRuins,
+                Trigger = "/SEM/AreaEvent/Room01/Other/LoadScript",
+            },
+            // TODO: figure out what this is...
+            new CutsceneTrigger()
+            {
+                StageId = StageId.LavaRuins,
+                Trigger = "/SEM/AreaEvent/Room07To08/Other/LoadScript",
+            },
+            // Skips cutscene near Fire pickup
+            new CutsceneTrigger()
+            {
+                StageId = StageId.LavaRuins,
+                Trigger = "/SEM/AreaEvent/Room05/Other/LoadScript_Room05",
+            },
+            // Skips cutscene at entrance of Dark Tunnel where player loses hat
+            // As this would normally enable hat lost flag, the cut retrieval cutscene also won't trigger
+            new CutsceneTrigger()
+            {
+                StageId = StageId.DarkTunnel,
+                Trigger = "/SEM/AreaEvent/Room01/Other/LoadScript01",
+            },
+            new CutsceneTrigger()
+            {
+                StageId = StageId.DarkTunnel,
+                Trigger = "/SEM/AreaEvent/Room08_02/Other/LoadScriptRoom08",
+            },
+            new CutsceneTrigger()
+            {
+                StageId = StageId.DarkTunnel,
+                Trigger = "/SEM/AreaEvent/Room08_02/Other/LoadScriptRoom08_02",
+            },
+            new CutsceneTrigger()
+            {
+                StageId = StageId.DarkTunnel,
+                Trigger = "/SEM/AreaEvent/Room08_02/Other/LoadScriptRoom08_03",
+            },
+            // Cutscene that plays when you initially load into stage
+            new CutsceneTrigger()
+            {
+                StageId = StageId.SpiritRealm,
+                Trigger = "/SEM/AreaEvent/Room01/Other/LoadScriptRoom01",
+            },
+        };
+
+        public static readonly ILookup<int, CutsceneTrigger> ByStageId =
+            Cutscenes.ToLookup(c => (int)c.StageId);
     }
 }
