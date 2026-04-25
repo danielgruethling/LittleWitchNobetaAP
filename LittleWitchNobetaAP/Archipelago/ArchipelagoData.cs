@@ -972,8 +972,8 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.DarkTunnel,
-                LocationName = "Dark Tunnel - Light switch after getting the hat",
-                ItemName = "Dark Tunnel Light Switch Barrier",
+                LocationName = "Dark Tunnel - Thunder barrier magic switches",
+                ItemName = "Dark Tunnel Thunder Barrier",
                 // Triggers when three switches in thunder barrier room are destroyed
                 TriggerPath = "/SEM/AreaEvent/Room06/Other/LoadScript_Room06",
                 Actions = new()
