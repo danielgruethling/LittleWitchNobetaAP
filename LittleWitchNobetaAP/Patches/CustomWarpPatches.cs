@@ -345,6 +345,7 @@ public static class CustomWarpPatches
         if (trapWallTemplate is not null)
         {
             var room08TrapWall = Object.Instantiate(trapWallTemplate);
+            room08TrapWall.active = true;
             room08TrapWall.name = "Room08_TrapWall";
             room08TrapWall.transform.position = new Vector3(219f, -16f, -169.5f);
             room08TrapWall.transform.rotation = Quaternion.Euler(0, 0, 0);
@@ -355,6 +356,7 @@ public static class CustomWarpPatches
             room08TrapWallComponent.g_EffCollision = trapWallTemplate.GetComponent<Trap_Wall_Level01>().g_EffCollision;
             room08TrapWallComponent.g_SEM = trapWallTemplate.GetComponent<Trap_Wall_Level01>().g_SEM;
             var room0802TrapWall = Object.Instantiate(trapWallTemplate);
+            room0802TrapWall.active = true;
             room0802TrapWall.name = "Room08_02_TrapWall";
             room0802TrapWall.transform.position = new Vector3(36f, -16f, -189.5f);
             room0802TrapWall.transform.rotation = Quaternion.Euler(0, 180, 0);
