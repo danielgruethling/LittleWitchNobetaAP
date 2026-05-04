@@ -16,16 +16,19 @@ public static class CustomWarpPatches
     private static void AddExtraAssetsToShrine()
     {
         if (Singletons.WizardGirl is null) return;
-        if (!Singletons.WizardGirl.GameSave.flags.stage01Cleared) return;
+        if (Singletons.GameSave is null) return;
 
         // Move collapsed wall to boss room area, allowing access to barrels at bottom of stairs in case
         // barrelsanity is enabled
-        var wallCollapse = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Room06/Other/L01CleraOpenEvent");
-        if (wallCollapse is not null)
+        if (Singletons.GameSave.flags.stage01Cleared)
         {
-            wallCollapse.transform.position = new Vector3(-84f, -41f, -235f);
-            wallCollapse.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
-            wallCollapse.transform.localScale = new Vector3(1.4f, 2f, 1.4f);
+            var wallCollapse = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Room06/Other/L01CleraOpenEvent");
+            if (wallCollapse is not null)
+            {
+                wallCollapse.transform.position = new Vector3(-84f, -28f, -235f);
+                wallCollapse.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+                wallCollapse.transform.localScale = new Vector3(1.4f, 2f, 1.4f);
+            }
         }
 
         // Create door for exit to underground start. Note that this is placed far in the hall because the exit point
@@ -70,6 +73,13 @@ public static class CustomWarpPatches
         savePoint.name = "CustomWarpPoint";
         savePoint.TransferLevelNumber = 3;
         savePoint.TransferSavePointNumber = 7;
+
+        // Only allow Underground -> Shrine direction if skippable bosses not enabled
+        if (!(ArchipelagoClient.ServerData.Settings?.SkippableBossesEnabled ?? true) &&
+            !(Singletons.GameSave?.flags.stage01Cleared ?? true))
+        {
+            savePoint.GetComponent<BoxCollider>().enabled = false;
+        }
 
         // Place new warp point in hallway to boss room, inside room area check volume to ensure texture load
         // This is placed regardless of whether the boss has been defeated yet, in order to give flexibility
@@ -232,7 +242,6 @@ public static class CustomWarpPatches
                     doorToUndergroundRebirthPoint.transform.rotation = Quaternion.Euler(0, 270, 0);
                 }
             }
-
         }
 
         // Create warp points for Monica arena to prevent softlocking if user doesn't have Monica warp gates or
@@ -303,29 +312,9 @@ public static class CustomWarpPatches
         Melon<LwnApMod>.Logger.Msg("Injected custom save point into save system");
     }
 
-    private static void DisableDarkTunnelBridgeCutscenes()
-    {
-        var beforeBridgeCutscene = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Room08_02/Other/LoadScriptRoom08");
-        if (beforeBridgeCutscene is not null)
-        {
-            beforeBridgeCutscene.GetComponent<BoxCollider>().enabled = false;
-        }
-
-        var postBridgeCutscene1 = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Room08_02/Other/LoadScriptRoom08_02");
-        if (postBridgeCutscene1 is not null)
-        {
-            postBridgeCutscene1.GetComponent<BoxCollider>().enabled = false;
-        }
-
-        var postBridgeCutscene2 = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Room08_02/Other/LoadScriptRoom08_03");
-        if (postBridgeCutscene2 is not null)
-        {
-            postBridgeCutscene2.GetComponent<BoxCollider>().enabled = false;
-        }
-    }
-
     private static void AddExtraAssetsToDarkTunnel()
     {
+        if (!(ArchipelagoClient.ServerData.Settings?.DisableDarkTunnelBridgeCollapse ?? false)) return;
         var magicWallParentTemplate = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Room02/Other/MagicWall");
         var magicWallTemplate = magicWallParentTemplate?.GetComponent<MagicWall>().EffectMagicWall;
         if (magicWallTemplate is not null)
@@ -398,8 +387,10 @@ public static class CustomWarpPatches
         }
     }
 
-    private static void AddCustomWarpToDarkTunnel()
+    private static void AddCustomBridgeWarpToDarkTunnel()
     {
+        if (!(ArchipelagoClient.ServerData.Settings?.DisableDarkTunnelBridgeCollapse ?? false)) return;
+
         var saveSystem = UnityUtils.FindObjectByPath("/SaveSystem")?.GetComponent<SaveSystem>();
         if (saveSystem == null)
         {
@@ -464,6 +455,121 @@ public static class CustomWarpPatches
 
         Melon<LwnApMod>.Logger.Msg("Injected custom save point into save system");
     }
+    
+    private static void AddCustomVanessaWarpToDarkTunnel()
+    {
+        if (!(ArchipelagoClient.ServerData.Settings?.SkippableBossesEnabled ?? false)) return;
+        var templateSavePath = "/Scene/Room09ToBoss_Save/Special/SavePoint (1)/02_EventPointRoom09Boss";
+
+        var template = UnityUtils.FindObjectByPath(templateSavePath);
+        var savePointCopy = Object.Instantiate(template);
+        if (savePointCopy is null)
+        {
+            Melon<LwnApMod>.Logger.Error("Failed to clone save point to make custom Spirit Realm exit");
+            return;
+        }
+        savePointCopy.name = "VanessaCustomExit";
+        savePointCopy.transform.position = new Vector3(36f, 20.5f, -545f);
+
+        var savePointComponent = savePointCopy.GetComponent<SavePoint>();
+        savePointComponent.TransferLevelNumber = 6;
+        // Set save point to invalid number to set to stage default
+        savePointComponent.TransferSavePointNumber = -1;
+        savePointComponent.EventType = PassiveEvent.PassiveEventType.Exit;
+        
+        var effectTemplate =
+            UnityUtils.FindObjectByPath("/Scene/Room09ToBoss_Save/Special/PassiveEventPrompt_CanNotBack/Effect");
+        if (effectTemplate is not null)
+        {
+            Object.Instantiate(effectTemplate, savePointCopy.transform);
+        }
+        
+        Melon<LwnApMod>.Logger.Msg("Injected custom exit point");
+    }
+
+    private static void AddCustomWarpToSpiritRealm()
+    {
+        if (!(ArchipelagoClient.ServerData.Settings?.SkippableBossesEnabled ?? false)) return;
+        
+        var templateSavePath = "/Scene/Room09_Save/Special/SavePoint/EventPointRoom09";
+
+        var template = UnityUtils.FindObjectByPath(templateSavePath);
+        var savePointCopy = Object.Instantiate(template);
+        if (savePointCopy is null)
+        {
+            Melon<LwnApMod>.Logger.Error("Failed to clone save point to make custom Spirit Realm exit");
+            return;
+        }
+        savePointCopy.name = "VanessaV2CustomExit";
+        savePointCopy.transform.position = new Vector3(-16.7f, 79f, -183.5f);
+
+        var savePointComponent = savePointCopy.GetComponent<SavePoint>();
+        savePointComponent.TransferLevelNumber = 7;
+        // Set save point to invalid number to set to stage default
+        savePointComponent.TransferSavePointNumber = -1;
+        savePointComponent.EventType = PassiveEvent.PassiveEventType.Exit;
+        
+        Melon<LwnApMod>.Logger.Msg("Injected custom exit point");
+    }
+
+    // Add custom warps that require injection into the save system on init
+    // to allow two-way exits (as save point needs to be ready when Nobeta loads)
+    public static void AddCustomSavePointsOnInit(SceneManager sm)
+    {
+        Melon<LwnApMod>.Logger.Msg("Running CustomWarp init patches");
+        if (Singletons.WizardGirl is null) return;
+        switch (sm.stageId)
+        {
+            case (int)StageId.Shrine:
+                AddCustomWarpToShrine();
+                break;
+            case (int)StageId.Underground:
+                AddCustomWarpToUnderground();
+                break;
+            case (int)StageId.LavaRuins:
+                AddCustomWarpToLavaRuins();
+                break;
+            case (int)StageId.DarkTunnel:
+                AddCustomBridgeWarpToDarkTunnel();
+                break;
+        }
+    }
+    
+    // Add custom warps that don't require injection into the SaveSystem
+    // (i.e. one-way exits to existing save points)
+    public static void AddCustomSavePointsOnInitComplete(SceneManager sm)
+    {
+        Melon<LwnApMod>.Logger.Msg("Running CustomWarp initComplete patches");
+        if (Singletons.WizardGirl is null) return;
+        switch (sm.stageId)
+        {
+            case (int)StageId.DarkTunnel:
+                AddCustomVanessaWarpToDarkTunnel();
+                break;
+            case (int)StageId.SpiritRealm:
+                AddCustomWarpToSpiritRealm();
+                break;
+        }
+    }
+
+    public static void AddCustomSavePointAssets(SceneManager sm)
+    {
+        Melon<LwnApMod>.Logger.Msg("Running CustomWarp Assets patches");
+
+        if (Singletons.WizardGirl is null) return;
+        switch (sm.stageId)
+        {
+            case (int)StageId.Shrine:
+                AddExtraAssetsToShrine();
+                break;
+            case (int)StageId.Underground:
+                AddExtraAssetsToUnderground();
+                break;
+            case (int)StageId.DarkTunnel:
+                AddExtraAssetsToDarkTunnel();
+                break;
+        }
+    }
 
     // Add SavePoint to SaveManager internal array on scene init. This can be finicky as we need to add
     // the save points before Nobeta spawns in (or else it will default to beginning of the stage), but
@@ -473,26 +579,10 @@ public static class CustomWarpPatches
     {
         [HarmonyPostfix]
         // ReSharper disable InconsistentNaming UnusedMember.Local
-        private static void AddCustomSavePoints(SceneManager __instance)
+        private static void OnInit(SceneManager __instance)
             // ReSharper restore InconsistentNaming UnusedMember.Local
         {
-            Melon<LwnApMod>.Logger.Msg("Running CustomWarp init patches");
-            if (Singletons.WizardGirl is null) return;
-            switch (__instance.stageId)
-            {
-                case (int)StageId.Shrine:
-                    AddCustomWarpToShrine();
-                    break;
-                case (int)StageId.Underground:
-                    AddCustomWarpToUnderground();
-                    break;
-                case (int)StageId.LavaRuins:
-                    AddCustomWarpToLavaRuins();
-                    break;
-                case (int)StageId.DarkTunnel:
-                    AddCustomWarpToDarkTunnel();
-                    break;
-            }
+            AddCustomSavePointsOnInit(__instance);
         }
     }
 
@@ -505,22 +595,8 @@ public static class CustomWarpPatches
         private static void AfterStageInitActions(SceneManager __instance)
             // ReSharper restore InconsistentNaming UnusedMember.Local
         {
-            Melon<LwnApMod>.Logger.Msg("Running CustomWarp OnSceneInitComplete patches");
-
-            if (Singletons.WizardGirl is null) return;
-            switch (__instance.stageId)
-            {
-                case (int)StageId.Shrine:
-                    AddExtraAssetsToShrine();
-                    break;
-                case (int)StageId.Underground:
-                    AddExtraAssetsToUnderground();
-                    break;
-                case (int)StageId.DarkTunnel:
-                    DisableDarkTunnelBridgeCutscenes();
-                    AddExtraAssetsToDarkTunnel();
-                    break;
-            }
+            AddCustomSavePointsOnInitComplete(__instance);
+            AddCustomSavePointAssets(__instance);
         }
     }
 
@@ -540,6 +616,8 @@ public static class CustomWarpPatches
                 4 when transferSavePointNum == 7 => "Lava Ruins - Monica Arena",
                 5 when transferSavePointNum == 7 => "Dark Tunnel - Before Bridge",
                 5 when transferSavePointNum == 8 => "Dark Tunnel - After Bridge",
+                6 when transferSavePointNum == -1 => "Spirit Realm - Entrance",
+                7 when transferSavePointNum == -1 => "Abyss - Entrance",
                 _ => __result
             };
         }
