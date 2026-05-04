@@ -109,6 +109,20 @@ public class ItemMenuPatches
             return selectedItem != "Valuables";
         }
     }
+    
+    // Disables IsOnInjectedMenu flag as the normal closed handler for the injected menu doesn't run
+    // if user hits "escape" to exit menu.
+    [HarmonyPatch(typeof(UIPauseMenu), nameof(UIPauseMenu.Hide))]
+    private static class UIPauseMenuHide
+    {
+        [HarmonyPostfix]
+        // ReSharper disable InconsistentNaming UnusedMember.Local
+        private static void DisableFlag(UIPauseMenu __instance)
+            // ReSharper restore InconsistentNaming UnusedMember.Local
+        {
+            IsOnInjectedMenu = false;
+        }
+    }
 
     [HarmonyPatch(typeof(UIPauseMenu), nameof(UIPauseMenu.Init))]
     private static class UIPauseMenuInit
