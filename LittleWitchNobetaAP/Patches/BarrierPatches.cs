@@ -416,54 +416,65 @@ public static class BarrierPatches
         private static void DisableDoorFlags(SceneManager __instance)
             // ReSharper restore UnusedMember.Local
         {
-            if (!ArchipelagoClient.IsAuthenticated || ArchipelagoClient.Session is null ||
-                ArchipelagoClient.ServerData.Settings is null)
-            {
-                return;
-            }
 
-            if (Singletons.WizardGirl is null) return;
+            if (Singletons.GameSave is null) return;
             // Door flags must be reset or else doors will be automatically open on
             // scene load without going through the OpenDoor.ReleaseEvent call.
             // TODO: Double check if additional flags need to be reset
-            if (ArchipelagoClient.ServerData.Settings.ShortcutGateBehaviour ==
-                ArchipelagoSettings.ShortcutGateBehaviourType.Randomized)
-            {
-                Singletons.WizardGirl.GameSave.flags.stage01OpenDoor01 = false;
-                Singletons.WizardGirl.GameSave.flags.stage01OpenDoor02 = false;
-                Singletons.WizardGirl.GameSave.flags.stage01OpenDoor03 = false;
-                Singletons.WizardGirl.GameSave.flags.stage01Room08Door = false;
-                Singletons.WizardGirl.GameSave.flags.stage02OpenDoor = false;
-                Singletons.WizardGirl.GameSave.flags.stage02L03BackDoor = false;
-                Singletons.WizardGirl.GameSave.flags.stage03Room01DoorL = false;
-                Singletons.WizardGirl.GameSave.flags.stage03Room01DoorR = false;
-                Singletons.WizardGirl.GameSave.flags.stage03Stage04BackDoor = false;
-                Singletons.WizardGirl.GameSave.flags.stage04Room02DoorSwitch = false;
-                Singletons.WizardGirl.GameSave.flags.stage04Room04CrystalBall = false;
-                Melon<LwnApMod>.Logger.Msg($"Reset door related flags.");
-            }
+
+            Singletons.GameSave.flags.stage01OpenDoor01 = false;
+            Singletons.GameSave.flags.stage01OpenDoor02 = false;
+            Singletons.GameSave.flags.stage01OpenDoor03 = false;
+            Singletons.GameSave.flags.stage01Room08Door = false;
+            Singletons.GameSave.flags.stage02OpenDoor = false;
+            Singletons.GameSave.flags.stage02L03BackDoor = false;
+            Singletons.GameSave.flags.stage03Room01DoorL = false;
+            Singletons.GameSave.flags.stage03Room01DoorR = false;
+            Singletons.GameSave.flags.stage03Room08ToBack = false;
+            Singletons.GameSave.flags.stage03Stage04BackDoor = false;
+            Singletons.GameSave.flags.stage04Room02DoorSwitch = false;
+            Singletons.GameSave.flags.stage04Room04CrystalBall = false;
+            
+            Singletons.GameSave.flags.stage05Room02DoorSwitch = false;
+            Singletons.GameSave.flags.stage05Room03To04DoorSwitch = false;
+            Singletons.GameSave.flags.stage05Room04DoorSwitch = false;
+
+            Melon<LwnApMod>.Logger.Msg($"Reset door related flags.");
 
             // Reset all barrier related flags. Flags cause barriers to release on stage load
             // without calling the typical method like ReleaseEvent, meaning logic could break
             // (e.g. player breaks switch and reloads stage, causing barrier to be released
             // even though they didn't get the corresponding barrier item)
-            if (ArchipelagoClient.ServerData.Settings.BarrierBehaviour ==
-                ArchipelagoSettings.MagicPuzzleGateBehaviourType.Randomized)
-            {
-                Singletons.WizardGirl.GameSave.flags.stage01MeetCat = false;
-                Singletons.WizardGirl.GameSave.flags.stage01Room03 = false;
-                Singletons.WizardGirl.GameSave.flags.stage01Room04 = false;
-                Singletons.WizardGirl.GameSave.flags.stage01Room06To07 = false;
-                Singletons.WizardGirl.GameSave.flags.stage01Room07Barrier = false;
-                Singletons.WizardGirl.GameSave.flags.stage01Room08Door = false;
-                Singletons.WizardGirl.GameSave.flags.stage01Room09Barrier = false;
-                
-                Singletons.WizardGirl.GameSave.flags.stage05Room07_01 = false;
-                Singletons.WizardGirl.GameSave.flags.stage05Room07_02 = false;
-                Singletons.WizardGirl.GameSave.flags.stage05Room07_03 = false;
+   
+            Singletons.GameSave.flags.stage01MeetCat = false;
+            Singletons.GameSave.flags.stage01Room03 = false;
+            Singletons.GameSave.flags.stage01Room04 = false;
+            Singletons.GameSave.flags.stage01Room06To07 = false;
+            Singletons.GameSave.flags.stage01Room07Barrier = false;
+            Singletons.GameSave.flags.stage01Room08Door = false;
+            Singletons.GameSave.flags.stage01Room09Barrier = false;
+            
+            Singletons.GameSave.flags.stage02Room06 = false;
+            Singletons.GameSave.flags.stage02Room08 = false;
+            Singletons.GameSave.flags.stage02Room09 = false;
 
-                Melon<LwnApMod>.Logger.Msg($"Reset magic puzzle gate flags.");
-            }
+            Singletons.GameSave.flags.stage03Room02 = false;
+            Singletons.GameSave.flags.stage03Room04Event02 = false;
+            Singletons.GameSave.flags.stage03Room06 = false;
+            
+            Singletons.GameSave.flags.stage05Room04_01 = false;
+            Singletons.GameSave.flags.stage05Room04_02 = false;
+            
+            Singletons.GameSave.flags.stage05Room07_01 = false;
+            Singletons.GameSave.flags.stage05Room07_02 = false;
+            Singletons.GameSave.flags.stage05Room07_03 = false;
+
+            // Reset Abyss trial switches, otherwise teleporter will enable on init
+            Singletons.GameSave.flags.stage06RoomCentralAct03 = false;
+            Singletons.GameSave.flags.stage06RoomCentralAct04 = false;
+            Singletons.GameSave.flags.stage06RoomCentralAct05 = false;
+
+            Melon<LwnApMod>.Logger.Msg($"Reset magic puzzle gate flags.");
         }
     }
 
