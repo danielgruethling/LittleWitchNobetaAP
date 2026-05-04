@@ -26,20 +26,25 @@ public static class BarrierPatches
         {
             if (!Singletons.SceneManager) return;
             if ((int)barrier.StageId != Singletons.SceneManager.stageId) return;
-            _isExecutingBarrierActions = true;
-            foreach (var action in barrier.Actions
-                         .Where(barrierData => (int)barrierData.StageId == Singletons.SceneManager.stageId))
+            MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
             {
-                if (action.DoNotExecuteOnItem)
+                _isExecutingBarrierActions = true;
+                foreach (var action in barrier.Actions
+                             .Where(barrierData => (int)barrierData.StageId == Singletons.SceneManager.stageId))
                 {
-                    Melon<LwnApMod>.Logger.Msg($"Action {action.Path} was skipped.");
-                    continue;
+                    if (action.DoNotExecuteOnItem)
+                    {
+                        Melon<LwnApMod>.Logger.Msg($"Action {action.Path} was skipped.");
+                        continue;
+                    }
+
+                    action.Execute();
                 }
-                action.Execute();
-            }
-            _isExecutingBarrierActions = false;
-            
-            Melon<LwnApMod>.Logger.Msg($"Barrier was opened: {itemName}");
+
+                _isExecutingBarrierActions = false;
+
+                Melon<LwnApMod>.Logger.Msg($"Barrier was opened: {itemName}");
+            }));
         }
     }
 
@@ -55,20 +60,41 @@ public static class BarrierPatches
         if (!Singletons.SceneManager) return;
 
         _isExecutingBarrierActions = true;
-
-        foreach (var barrier in ArchipelagoData.Barriers.BarrierMappings
-                     .Where(barrier => ArchipelagoClient.Session.Items.AllItemsReceived
-                         .Any(item => item.ItemName == barrier.ItemName)))
+        
+        Melon<LwnApMod>.Logger.Msg($"Running ExecuteAllStageBarrierActions.");
+        
+        foreach (var barrier in ArchipelagoData.Barriers.BarrierMappings)
         {
-            foreach (var action in barrier.Actions
-                         .Where(barrierData => (int)barrierData.StageId == Singletons.SceneManager.stageId))
+            var isAlwaysOpenGate = barrier.Type == BarrierType.MetalGate &&
+                                   ArchipelagoClient.ServerData.Settings?.ShortcutGateBehaviour ==
+                                   ArchipelagoSettings.ShortcutGateBehaviourType.AlwaysOpen;
+            var isAlwaysOpenMagicPuzzle = barrier.Type == BarrierType.MagicPuzzle &&
+                                          ArchipelagoClient.ServerData.Settings?.BarrierBehaviour ==
+                                          ArchipelagoSettings.MagicPuzzleGateBehaviourType.AlwaysOpen;
+            var hasItem = ArchipelagoClient.Session.Items.AllItemsReceived
+                .Any(item => item.ItemName == barrier.ItemName);
+            var isRandomizedGate = ArchipelagoClient.ServerData.Settings?.ShortcutGateBehaviour ==
+                ArchipelagoSettings.ShortcutGateBehaviourType.Randomized && barrier.Type == BarrierType.MetalGate;
+            var isRandomizedMagicPuzzle = ArchipelagoClient.ServerData.Settings?.BarrierBehaviour ==
+                ArchipelagoSettings.MagicPuzzleGateBehaviourType.Randomized && barrier.Type == BarrierType.MagicPuzzle;
+            
+            
+            if (isAlwaysOpenGate || isAlwaysOpenMagicPuzzle || (hasItem && isRandomizedGate) ||
+                (hasItem && isRandomizedMagicPuzzle))
             {
-                if (action.DoNotExecuteOnItem) continue;
-                action.Execute();
+                Melon<LwnApMod>.Logger.Msg($"Running barrier actions for barrier with item {barrier.ItemName}.");
+
+                MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
+                {
+                    foreach (var action in barrier.Actions
+                                 .Where(barrierData => (int)barrierData.StageId == Singletons.SceneManager.stageId))
+                    {
+                        if (action.DoNotExecuteOnItem) continue;
+                        action.Execute();
+                    }
+                }));
             }
         }
-
-        Melon<LwnApMod>.Logger.Msg($"Opened all received barriers.");
 
         var onStageLoadActions =
             ArchipelagoData.Barriers.OnStageLoadActionsByStageId[Singletons.SceneManager.stageId];
@@ -80,14 +106,18 @@ public static class BarrierPatches
                     .Any(item => item.ItemName == barrier.ItemName);
                 if (hasItem) continue;
             }
-            foreach (var action in barrier.Actions)
+
+            MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
             {
-                action.Execute();
-                Melon<LwnApMod>.Logger.Msg(
-                    barrier.ItemName is null
-                        ? $"Barrier action {action.Path} executed on stage load."
-                        : $"Barrier action {action.Path} executed as player lacks AP item {barrier.ItemName}.");
-            }
+                foreach (var action in barrier.Actions)
+                {
+                    action.Execute();
+                    Melon<LwnApMod>.Logger.Msg(
+                        barrier.ItemName is null
+                            ? $"Barrier action {action.Path} executed on stage load."
+                            : $"Barrier action {action.Path} executed as player lacks AP item {barrier.ItemName}.");
+                }
+            }));
         }
 
         _isExecutingBarrierActions = false;
@@ -98,6 +128,17 @@ public static class BarrierPatches
         var barrier = ArchipelagoData.Barriers.ByTriggerPath[path]
             .FirstOrDefault(barrier => (int)barrier.StageId == Singletons.SceneManager?.stageId);
         if (barrier is null) return;
+        switch (barrier.Type)
+        {
+            case BarrierType.MetalGate when
+                (ArchipelagoClient.ServerData.Settings?.ShortcutGateBehaviour !=
+                 ArchipelagoSettings.ShortcutGateBehaviourType.Randomized):
+            case BarrierType.MagicPuzzle when
+                (ArchipelagoClient.ServerData.Settings?.BarrierBehaviour !=
+                 ArchipelagoSettings.MagicPuzzleGateBehaviourType.Randomized):
+                return;
+        }
+
         var locationId = ArchipelagoData.GetLocationIdByName(barrier.LocationName);
         Melon<LwnApMod>.Logger.Msg(
             $"AP Location: {barrier.LocationName} ({locationId}) at trigger {path} checked.");
@@ -116,6 +157,17 @@ public static class BarrierPatches
             }
             else
             {
+                switch (barrier.Type)
+                {
+                    case BarrierType.MetalGate when
+                        (ArchipelagoClient.ServerData.Settings?.ShortcutGateBehaviour !=
+                         ArchipelagoSettings.ShortcutGateBehaviourType.Randomized):
+                    case BarrierType.MagicPuzzle when
+                        (ArchipelagoClient.ServerData.Settings?.BarrierBehaviour !=
+                         ArchipelagoSettings.MagicPuzzleGateBehaviourType.Randomized):
+                        return true;
+                }
+
                 var hasBarrierItem = session.Items.AllItemsReceived
                     .Any(item => item.ItemName == barrier.ItemName);
                 Melon<LwnApMod>.Logger.Msg(hasBarrierItem
@@ -270,7 +322,7 @@ public static class BarrierPatches
             return ShouldAllowEvent(ArchipelagoClient.Session, path);
         }
     }
-    
+
     [HarmonyPatch(typeof(Elevator), nameof(Elevator.OpenEvent))]
     private static class ElevatorOpenEvent
     {

@@ -5,9 +5,16 @@ using UnityEngine;
 
 namespace LittleWitchNobetaAP.Archipelago;
 
+public enum BarrierType
+{
+    MagicPuzzle,
+    MetalGate,
+}
+
 public class BarrierMapping
 {
     public StageId StageId { get; init; }
+    public BarrierType Type { get; init; } = BarrierType.MagicPuzzle;
     public string LocationName { get; init; } = "";
     public string ItemName { get; init; } = "";
     public string TriggerPath { get; init; } = "";
@@ -621,6 +628,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.Shrine,
+                Type = BarrierType.MetalGate,
                 LocationName = "Shrine - Underground shortcut gate switch",
                 ItemName = "Shrine Underground Shortcut Gate",
                 // Triggers when lever is flipped
@@ -635,6 +643,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.Shrine,
+                Type = BarrierType.MetalGate,
                 LocationName = "Secret Passage - Boss shortcut gate switch",
                 ItemName = "Shrine Secret Boss Shortcut Gate",
                 // Triggers when lever is flipped
@@ -660,6 +669,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.Shrine,
+                Type = BarrierType.MetalGate,
                 LocationName = "Secret Passage - Secret area shortcut gate switch",
                 ItemName = "Shrine Secret Area Shortcut Gate",
                 // Triggers when lever is flipped
@@ -714,6 +724,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.Shrine,
+                Type = BarrierType.MetalGate,
                 LocationName = "Secret Passage - Dark Tunnel shortcut gate switch",
                 ItemName = "Secret Passage Dark Tunnel Shortcut Gate",
                 // Triggers when lever is flipped
@@ -740,6 +751,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.Underground,
+                Type = BarrierType.MetalGate,
                 LocationName = "Underground - Lava ruins shortcut gate switch",
                 ItemName = "Underground Lava Ruins Shortcut Gate",
                 // Triggers when lever is flipped
@@ -763,6 +775,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.Underground,
+                Type = BarrierType.MetalGate,
                 LocationName = "Underground - Tania shortcut switch on statue side",
                 ItemName = "Underground Tania Shortcut Gate On Grand Hall Side",
                 // Triggers when lever is flipped
@@ -793,6 +806,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.Underground,
+                Type = BarrierType.MetalGate,
                 LocationName = "Underground - Tania shortcut switch on Tania side",
                 ItemName = "Underground Tania Shortcut Gate On Tania Side",
                 // Triggers when lever is flipped
@@ -829,8 +843,6 @@ public static class ArchipelagoData
                     {
                         StageId = StageId.Underground,
                         Path = "/SEM/AreaEvent/RoomBoss/Other/10MagicWall02",
-                        // Prevent players from leaving during the fight, although maybe that should be allowed?
-                        DoNotExecuteOnItem = true,
                     },
                 },
             },
@@ -854,6 +866,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.LavaRuins,
+                Type = BarrierType.MetalGate,
                 LocationName = "Lava Ruins - Fake floor shortcut gate switch",
                 ItemName = "Lava Ruins Fake Floor Shortcut Gate",
                 // Triggers when lever is flipped
@@ -926,6 +939,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.LavaRuins,
+                Type = BarrierType.MetalGate,
                 LocationName = "Lava Ruins - Monica shortcut switch",
                 ItemName = "Lava Ruins Monica Shortcut Gate",
                 // Triggers when lever is flipped
@@ -952,6 +966,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.LavaRuins,
+                Type = BarrierType.MetalGate,
                 LocationName = "Lava Ruins - Monica warp gate switch",
                 ItemName = "Lava Ruins Monica Warp Gate",
                 // Triggers when lever is flipped
@@ -980,6 +995,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.DarkTunnel,
+                Type = BarrierType.MetalGate,
                 LocationName = "Dark Tunnel - First gate switch",
                 ItemName = "Dark Tunnel First Gate",
                 // Triggers when lever is flipped
@@ -1074,6 +1090,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.SpiritRealm,
+                Type = BarrierType.MetalGate,
                 LocationName = "Spirit Realm - Wind spell chest gate switch",
                 ItemName = "Spirit Realm Wind Spell Chest Gate",
                 // Triggers when lever is flipped.
@@ -1088,6 +1105,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.SpiritRealm,
+                Type = BarrierType.MetalGate,
                 LocationName = "Spirit Realm - Ice spell chest gate switch in right side alcove",
                 ItemName = "Spirit Realm Ice Spell Chest Gate",
                 // Triggers when lever is flipped.
@@ -1166,6 +1184,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.SpiritRealm,
+                Type = BarrierType.MetalGate,
                 LocationName = "Spirit Realm - Statue shortcut gate switch",
                 ItemName = "Spirit Realm Statue Shortcut Gate",
                 // Triggers when lever is flipped
@@ -1267,6 +1286,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.Abyss,
+                Type = BarrierType.MetalGate,
                 LocationName = "Abyss - First gate switch",
                 ItemName = "Abyss First Gate",
                 // Triggers when lever is flipped
@@ -1280,6 +1300,7 @@ public static class ArchipelagoData
             new BarrierMapping()
             {
                 StageId = StageId.Abyss,
+                Type = BarrierType.MetalGate,
                 LocationName = "Abyss - Trap gate trigger",
                 ItemName = "Abyss Trap Gates",
                 // Triggers when player leaves the area
