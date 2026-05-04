@@ -1506,6 +1506,21 @@ public static class ArchipelagoData
                     new MagicWallStartAction() { Path = "/SEM/AreaEvent/Room09/Other/MagicWall_Room09" }
                 }
             },
+            // Enables the cat prompt to get the absorption book item if it's in the scene
+            // This overrides the expected state the game has for this prompt to keep the check always accessible
+            new StageLoadAction()
+            {
+                StageId = StageId.Underground,
+                Actions = new()
+                {
+                    new SpecialAction(() =>
+                    {
+                        var catBook = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Room02/Other/CatBook");
+                        if (catBook is null) return;
+                        catBook.gameObject.SetActive(true);
+                    })
+                }
+            },
             new StageLoadAction()
             {
                 StageId = StageId.Underground,
@@ -1515,6 +1530,30 @@ public static class ArchipelagoData
                     new MagicWallStartAction() { Path = "/SEM/AreaEvent/Room06/Other/MagicWall" }
                 }
             },
+            new StageLoadAction()
+            {
+                StageId = StageId.Underground,
+                ItemName = "Underground Fire Barrier Magic Barrier",
+                Actions = new()
+                {
+                    new MagicWallStartAction()
+                        { StageId = StageId.Underground, Path = "/SEM/AreaEvent/Room08/Other/MagicWall" },
+                    new FireTrapStartAction()
+                        { StageId = StageId.Underground, Path = "/SEM/AreaEvent/Room08/Other/FireTrap" },
+                    new FireTrapStartAction()
+                        { StageId = StageId.Underground, Path = "/SEM/AreaEvent/Room08/Other/FireTrap" },
+                },
+            },
+            new StageLoadAction()
+            {
+                StageId = StageId.Underground,
+                ItemName = "Underground Enemy Magic Barrier",
+                Actions = new()
+                {
+                    new MagicWallStartAction() { Path = "/SEM/AreaEvent/Room09/Other/MagicWall" }
+                }
+            },
+
             new StageLoadAction()
             {
                 // Barrier after Tania, blocking reverse movement (Lava Ruins -> Underground)
@@ -1595,16 +1634,46 @@ public static class ArchipelagoData
             },
             new StageLoadAction()
             {
+                // Seal arena barriers only activate on boss trigger, which don't prevent backwards movement
+                StageId = StageId.SpiritRealm,
+                ItemName = "Spirit Realm First Seal Magic Barrier",
+                Actions = new()
+                {
+                    new MagicWallReleaseAction()
+                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room05/Other/29_MagicWall" },
+                }
+            },
+            new StageLoadAction()
+            {
+                StageId = StageId.SpiritRealm,
+                ItemName = "Spirit Realm Second Seal Magic Barrier",
+                Actions = new()
+                {
+                    new MagicWallStartAction()
+                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room06/Other/03_MagicWall01" },
+                    new MagicWallStartAction()
+                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room06/Other/04_MagicWall02" },
+                    new MagicWallStartAction()
+                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room06/Other/05_MagicWall03" },
+                }
+            },
+            new StageLoadAction()
+            {
                 StageId = StageId.SpiritRealm,
                 ItemName = "Spirit Realm Fire Deactivation",
                 Actions = new()
                 {
                     // Normally only starts after first switch is destroyed and elevator activates
-                    new FireTrapStartAction() { Path = "/SEM/AreaEvent/Room07/Other/FireTrap01" },
-                    new FireTrapStartAction() { Path = "/SEM/AreaEvent/Room07/Other/FireTrap02" },
-                    new FireTrapStartAction() { Path = "/SEM/AreaEvent/Room07/Other/FireTrap03" },
-                    new FireTrapStartAction() { Path = "/SEM/AreaEvent/Room07/Other/FireTrap04" },
-                    new FireTrapStartAction() { Path = "/SEM/AreaEvent/Room07/Other/FireTrap05" },
+                    new FireTrapStartAction()
+                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/FireTrap01" },
+                    new FireTrapStartAction()
+                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/FireTrap02" },
+                    new FireTrapStartAction()
+                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/FireTrap03" },
+                    new FireTrapStartAction()
+                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/FireTrap04" },
+                    new FireTrapStartAction()
+                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/FireTrap05" },
                 }
             }
         };
