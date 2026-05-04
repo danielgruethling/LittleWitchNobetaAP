@@ -1365,7 +1365,7 @@ public static class ArchipelagoData
                 LocationName = "Abyss - Underground trial magic switch",
                 ItemName = "Abyss Underground Trial Magic Switch",
                 // Triggers when switch is destroyed
-                TriggerPath = "/SEM/AreaEvent/RoomCentral/Other/MagicWall0201",
+                TriggerPath = "/Scene/RoomCentral/Special/SwitchDevice_Strengthen (1)/AttackabclObject02_Act03",
                 Actions = new()
                 {
                     new MagicWallReleaseAction()
@@ -1397,7 +1397,7 @@ public static class ArchipelagoData
                 LocationName = "Abyss - Dark Tunnel trial magic switch",
                 ItemName = "Abyss Dark Tunnel Trial Magic Switch",
                 // Triggers when switch is destroyed
-                TriggerPath = "/SEM/AreaEvent/RoomCentral/Other/MagicWall0301",
+                TriggerPath = "/Scene/RoomCentral/Special/SwitchDevice_Strengthen (2)/AttackabclObject03_Act05",
                 Actions = new()
                 {
                     new MagicWallReleaseAction()
@@ -1434,6 +1434,23 @@ public static class ArchipelagoData
                 {
                     new MagicWallReleaseAction()
                         { StageId = StageId.Abyss, Path = "/SEM/AreaEvent/Act04/Other/MagicWall" },
+                },
+            },
+            new BarrierMapping()
+            {
+                StageId = StageId.Abyss,
+                LocationName = "Abyss - Lava Ruins trial magic switch",
+                ItemName = "Abyss Lava Ruins Trial Magic Switch",
+                // Triggers when switch is destroyed
+                TriggerPath = "/Scene/RoomCentral/Special/SwitchDevice_Strengthen/AttackabclObject01_Act04",
+                Actions = new()
+                {
+                    new MagicWallReleaseAction()
+                        { StageId = StageId.Abyss, Path = "/SEM/AreaEvent/RoomCentral/Other/MagicWall0101" },
+                    new MagicWallReleaseAction()
+                        { StageId = StageId.Abyss, Path = "/SEM/AreaEvent/RoomCentral/Other/MagicWall0102" },
+                    new MagicWallReleaseAction()
+                        { StageId = StageId.Abyss, Path = "/SEM/AreaEvent/RoomCentral/Other/MagicWall0103" },
                 },
             },
         };

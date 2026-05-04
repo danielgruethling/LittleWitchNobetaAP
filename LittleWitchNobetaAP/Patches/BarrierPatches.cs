@@ -227,6 +227,28 @@ public static class BarrierPatches
             TryTriggerBarrierCheck(ArchipelagoClient.Session, path);
         }
     }
+    
+    [HarmonyPatch(typeof(SwitchDevice), nameof(SwitchDevice.ReleaseDevice))]
+    private static class SwitchDeviceReleaseDevice
+    {
+        [HarmonyPrefix]
+        // ReSharper disable InconsistentNaming UnusedMember.Local
+        private static void SwitchDeviceReleaseDevicePrefix(SwitchDevice __instance)
+            // ReSharper restore InconsistentNaming UnusedMember.Local
+        {
+            if (!ArchipelagoClient.IsAuthenticated || ArchipelagoClient.Session is null)
+            {
+                return;
+            }
+
+            if (!Singletons.SceneManager) return;
+
+            var path = UnityUtils.GetObjectPath(__instance.gameObject);
+            Melon<LwnApMod>.Logger.Msg($"SwitchDevice release event detected with path {path}.");
+
+            TryTriggerBarrierCheck(ArchipelagoClient.Session, path);
+        }
+    }
 
     [HarmonyPatch(typeof(OpenScriptEvent), nameof(OpenScriptEvent.OpenEvent))]
     private static class OpenScriptEventOpenEvent
