@@ -1522,6 +1522,26 @@ public static class ArchipelagoData
             },
             new StageLoadAction()
             {
+                // Disable thunder wall if that setting is enabled
+                StageId = StageId.DarkTunnel,
+                Actions = new()
+                {
+                    new MagicWallLightningReleaseOnOptionAction()
+                    {
+                        StageId = StageId.DarkTunnel, Path = "/SEM/AreaEvent/Room05/Other/MagicWallLightning_Room05_01"
+                    },
+                    new MagicWallLightningReleaseOnOptionAction()
+                    {
+                        StageId = StageId.DarkTunnel, Path = "/SEM/AreaEvent/Room05/Other/MagicWallLightning_Room05_02"
+                    },
+                    new MagicWallLightningReleaseOnOptionAction()
+                    {
+                        StageId = StageId.DarkTunnel, Path = "/SEM/AreaEvent/Room06/Other/MagicWallLightning_Room06"
+                    },
+                }
+            },
+            new StageLoadAction()
+            {
                 // These barriers only activate when entering the room from the front.
                 StageId = StageId.DarkTunnel,
                 ItemName = "Dark Tunnel Thunder Barrier",

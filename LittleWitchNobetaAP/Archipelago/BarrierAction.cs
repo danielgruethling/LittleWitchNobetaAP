@@ -116,6 +116,16 @@ public class TeleportEnableAction : BarrierAction
     }
 }
 
+public class MagicWallLightningReleaseOnOptionAction : BarrierAction
+{
+    public override void Execute()
+    {
+        if (!(ArchipelagoClient.ServerData.Settings?.DisableDarkTunnelThunderWall ?? false)) return;
+        var magicWallLightning = UnityUtils.FindObjectByPath(Path)?.GetComponent<MagicWallLightning>();
+        magicWallLightning?.ReleaseEvent();
+    }
+}
+
 // Special class for creating special one-off barrier actions
 public class SpecialAction : BarrierAction
 {
