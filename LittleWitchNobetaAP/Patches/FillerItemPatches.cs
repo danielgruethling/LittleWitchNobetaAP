@@ -70,7 +70,11 @@ public static class FillerItemPatches
         MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
         {
             var randomDirection = Random.Next(0, 5);
-            var repulseStrength = (randomDirection == (int)AttackData.AttackDirection.Down) ? 3 : Random.Next(5, 16);
+            // For some reason, "down" actually means up. A bonk trap could, with extreme luck, allow for
+            // out-of-logic movement, so the up-bonk is made less powerful than other directions.
+            var repulseStrength = (randomDirection == (int)AttackData.AttackDirection.Down)
+                ? Random.Next(3, 7)
+                : Random.Next(10, 20);
             Melon<LwnApMod>.Logger.Msg($"Bonking in direction: {(AttackData.AttackDirection)randomDirection}.");
             Melon<LwnApMod>.Logger.Msg($"Bonking with strength: {repulseStrength}.");
             attack.SetAttackDirection((AttackData.AttackDirection)randomDirection);
