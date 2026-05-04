@@ -72,6 +72,7 @@ public class ArchipelagoSettings
     public ShortcutGateBehaviourType ShortcutGateBehaviour;
     public MagicPuzzleGateBehaviourType BarrierBehaviour;
     public StartLevelSetting StartLevel;
+    public bool NoManaRegeneration;
     public bool RandomizeBossSoulsEnabled;
     public bool RandomizedBossTokensEnabled;
     public bool SkippableBossesEnabled;
@@ -107,6 +108,7 @@ public class ArchipelagoSettings
         ShortcutGateBehaviour = (ShortcutGateBehaviourType)(long)slotData["shortcut_gate_behaviour"];
         BarrierBehaviour = (MagicPuzzleGateBehaviourType)(long)slotData["barrier_behaviour"];
         StartLevel = StartLevelSetting.OkunShrine;
+        NoManaRegeneration = (bool)slotData["no_mana_regeneration"];
         RandomizeBossSoulsEnabled = (bool)slotData["randomize_boss_souls"];
         RandomizedBossTokensEnabled = (bool)slotData["randomize_boss_tokens"];
         SkippableBossesEnabled = (bool)slotData["skippable_bosses"];
