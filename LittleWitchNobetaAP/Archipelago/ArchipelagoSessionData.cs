@@ -15,6 +15,7 @@ public class ArchipelagoSessionData
 
     private Dictionary<string, object>? _slotData;
 
+    public List<int> CheckedLoreItemLocations = new();
     public List<long> CheckedLocations;
     public string Hostname;
     public string Password;
@@ -23,16 +24,8 @@ public class ArchipelagoSessionData
     public Dictionary<long, List<SceneEvent>> StoredEvents;
     public ArchipelagoSettings? Settings;
 
-    public ArchipelagoSessionData()
+    public ArchipelagoSessionData() : this("archipelago.gg", "38281", "Player1", string.Empty)
     {
-        Hostname = "archipelago.gg";
-        SlotName = "Player1";
-        Port = "38281";
-        Password = string.Empty;
-        CheckedLocations = new List<long>();
-        StoredEvents = new Dictionary<long, List<SceneEvent>>();
-        KilledBosses = new HashSet<string>();
-        OpenedTrials = new HashSet<string>();
     }
 
     public ArchipelagoSessionData(string uri, string port, string slotName, string password)
@@ -62,6 +55,12 @@ public class ArchipelagoSessionData
 
     public bool NeedSlotData => _slotData == null;
 
+    public void AddCheckedLoreItemLocation(int loreItemLocation)
+    {
+        CheckedLoreItemLocations.Add(loreItemLocation);
+        ArchipelagoClient.ApSaveFile?.AddCheckedLoreItemLocation(loreItemLocation);
+    }
+
     /// <summary>
     ///     assigns the slot data and seed to our data handler. any necessary setup using this data can be done here.
     /// </summary>
@@ -73,7 +72,7 @@ public class ArchipelagoSessionData
         _seed = roomSeed;
 
         ArchipelagoClient.ApSaveFile = new ArchipelagoSaveFile(_seed);
-        this.Settings = new ArchipelagoSettings(_slotData);
+        Settings = new ArchipelagoSettings(_slotData);
     }
 
     /// <summary>
