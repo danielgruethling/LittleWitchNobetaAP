@@ -40,6 +40,7 @@ public class ArchipelagoSettings
     {
         Vanilla,
         Randomized,
+        ChecksOnly,
         NoLore,
     }
 

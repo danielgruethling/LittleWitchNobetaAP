@@ -68,7 +68,10 @@ public class ItemMenuPatches
             var selectedItem = __instance.navigator.currentHandler?.name;
             if (selectedItem != "APItems") return true;
             if (!ArchipelagoClient.IsAuthenticated || ArchipelagoClient.Session is null) return false;
-            if (ArchipelagoClient.ServerData.Settings?.RandomizeLoreEnabled == ArchipelagoSettings.RandomizeLore.NoLore)
+            if (ArchipelagoClient.ServerData.Settings?.RandomizeLoreEnabled ==
+                ArchipelagoSettings.RandomizeLore.ChecksOnly
+                || ArchipelagoClient.ServerData.Settings?.RandomizeLoreEnabled ==
+                ArchipelagoSettings.RandomizeLore.NoLore)
             {
                 Game.AppearEventPrompt("Lore items have been disabled.");
                 return false;
@@ -104,12 +107,20 @@ public class ItemMenuPatches
         private static bool UIPauseMenuPreventAPMenuLoadWhenDisconnected(UIPauseMenu __instance)
             // ReSharper restore InconsistentNaming UnusedMember.Local
         {
-            if (ArchipelagoClient.IsAuthenticated && ArchipelagoClient.Session is not null) return true;
             var selectedItem = __instance.navigator.currentHandler?.name;
-            return selectedItem != "Valuables";
+            if (!ArchipelagoClient.IsAuthenticated || ArchipelagoClient.Session is null)
+                return selectedItem != "Valuables";
+            if (selectedItem == "Valuables"
+                && (ArchipelagoClient.ServerData.Settings?.RandomizeLoreEnabled ==
+                    ArchipelagoSettings.RandomizeLore.NoLore))
+            {
+                Game.AppearEventPrompt("Lore checks have been disabled.");
+                return false;
+            }
+            return true;
         }
     }
-    
+
     // Disables IsOnInjectedMenu flag as the normal closed handler for the injected menu doesn't run
     // if user hits "escape" to exit menu.
     [HarmonyPatch(typeof(UIPauseMenu), nameof(UIPauseMenu.Hide))]
@@ -205,6 +216,19 @@ public class ItemMenuPatches
             template.GetComponent<UILabelHandler>().SetLabel("AP Lore Checks");
             template.GetComponent<RectTransform>().sizeDelta = new Vector2(200f, 70f);
             Melon<LwnApMod>.Logger.Msg("Changed item menu name");
+        }
+        
+        [HarmonyPostfix]
+        // ReSharper disable InconsistentNaming UnusedMember.Local
+        private static void MarkItemMenusAsDirty(UIPauseMenu __instance)
+            // ReSharper restore InconsistentNaming UnusedMember.Local
+        {
+            var canvasRoot = __instance.transform.parent;
+            var originalMenu = canvasRoot.Find("UIValuablesGuide");
+            var injectedMenu = canvasRoot.Find("UIApItemGuide");
+            originalMenu.GetComponent<UIValuablesGuide>().isDirty = true;
+            injectedMenu.GetComponent<UIValuablesGuide>().isDirty = true;
+            Melon<LwnApMod>.Logger.Msg("Marked item menus as dirty.");
         }
     }
 }
