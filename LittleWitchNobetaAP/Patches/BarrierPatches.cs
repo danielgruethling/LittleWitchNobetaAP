@@ -480,21 +480,6 @@ public static class BarrierPatches
                 return;
             }
 
-            Melon<LwnApMod>.Logger.Msg($"Settings:");
-            Melon<LwnApMod>.Logger.Msg($"Diff: {ArchipelagoClient.ServerData?.Settings?.Difficulty}");
-            Melon<LwnApMod>.Logger.Msg($"BarrierBehaviour: {ArchipelagoClient.ServerData?.Settings?.BarrierBehaviour}");
-            Melon<LwnApMod>.Logger.Msg(
-                $"ShortcutGateBehaviour: {ArchipelagoClient.ServerData?.Settings?.ShortcutGateBehaviour}");
-            Melon<LwnApMod>.Logger.Msg($"StartLevel: {ArchipelagoClient.ServerData?.Settings?.StartLevel}");
-            Melon<LwnApMod>.Logger.Msg(
-                $"RandomizeBossSoulsEnabled: {ArchipelagoClient.ServerData?.Settings?.RandomizeBossSoulsEnabled}");
-            Melon<LwnApMod>.Logger.Msg($"DeathLinkEnabled: {ArchipelagoClient.ServerData?.Settings?.DeathLinkEnabled}");
-            Melon<LwnApMod>.Logger.Msg(
-                $"EntranceRandomizationEnabled: {ArchipelagoClient.ServerData?.Settings?.EntranceRandomizationEnabled}");
-            Melon<LwnApMod>.Logger.Msg(
-                $"RandomizeLoreEnabled: {ArchipelagoClient.ServerData?.Settings?.RandomizeLoreEnabled}");
-            Melon<LwnApMod>.Logger.Msg($"TrialKeysEnabled: {ArchipelagoClient.ServerData?.Settings?.TrialKeysEnabled}");
-
             ExecuteAllStageBarrierActions();
         }
     }
@@ -514,37 +499,6 @@ public static class BarrierPatches
 
             var path = UnityUtils.GetObjectPath(__instance.gameObject);
             Melon<LwnApMod>.Logger.Msg($"Player has entered area {path}.");
-        }
-    }
-
-    // Prevent underground start cutscene from playing
-    // Because player always touches room01 on scene load, this cutscene triggers which moves the player
-    // to the stage start, even if they traveled through the Shrine Underground shortcut gate.
-    [HarmonyPatch(typeof(LoadScript), nameof(LoadScript.OpenEvent))]
-    private static class DisableUndergroundStartCutscene
-    {
-        [HarmonyPrefix]
-        // ReSharper disable InconsistentNaming UnusedMember.Local
-        private static bool LoadScriptOpenEventPrefix(LoadScript __instance)
-            // ReSharper restore InconsistentNaming UnusedMember.Local
-        {
-            if (!ArchipelagoClient.IsAuthenticated || ArchipelagoClient.Session is null)
-            {
-                return true;
-            }
-
-            if (!Singletons.SceneManager) return true;
-            if (Singletons.SceneManager.stageId != (int)StageId.Underground) return true;
-
-            var path = UnityUtils.GetObjectPath(__instance.gameObject);
-            if (path != "/SEM/AreaEvent/Room01/Other/LoadScript_Room01") return true;
-            if (Singletons.WizardGirl is not null)
-            {
-                Singletons.WizardGirl.GameSave.flags.stage02Room01 = true;
-            }
-
-            Melon<LwnApMod>.Logger.Msg($"Underground start cutscene skipped.");
-            return false;
         }
     }
 }
