@@ -392,10 +392,10 @@ public class ArchipelagoClient : MonoBehaviour
         switch (itemName)
         {
             case "Bonk Trap":
-                TrapPatches.QueueBonkTrap();
+                FillerItemPatches.QueueTrap(TrapType.BonkTrap);
                 break;
             case "Mana Drain Trap":
-                TrapPatches.QueueManaDrainTrap();
+                FillerItemPatches.QueueTrap(TrapType.ManaDrainTrap);
                 break;
         }
     }
@@ -463,43 +463,7 @@ public class ArchipelagoClient : MonoBehaviour
 
     private static void GiveGameItem(ItemSystem.ItemType itemType)
     {
-        MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
-        {
-            var wizardGirl = Singletons.WizardGirl;
-            var items = wizardGirl?.g_PlayerItem;
-
-            if (wizardGirl == null || items == null) return;
-
-            Melon<LwnApMod>.Logger.Msg($"Giving item {itemType}");
-
-            // Find first empty slot if there's any
-            for (var i = 0; i < items.g_iItemSize; i++)
-            {
-                if (items.g_HoldItem[i] != ItemSystem.ItemType.Null) continue;
-
-                items.g_HoldItem[i] = itemType;
-                Singletons.StageUi.itemBar.UpdateItemSprite(items.g_HoldItem);
-
-                return;
-            }
-
-            // For trial keys replace first slot that is not a Trial Key and create souls for lost item
-            if (itemType == ItemSystem.ItemType.SPMaxAdd)
-                for (var i = 0; i < items.g_iItemSize; i++)
-                {
-                    if (items.g_HoldItem[i] == ItemSystem.ItemType.SPMaxAdd) continue;
-
-                    Melon<LwnApMod>.Logger.Msg($"Adding trial key to item slot {i}");
-                    items.g_HoldItem[i] = itemType;
-                    Singletons.StageUi.itemBar.UpdateItemSprite(items.g_HoldItem);
-                    Il2Cpp.Game.CreateSoul(SoulSystem.SoulType.Money, wizardGirl.transform.position, 400);
-
-                    return;
-                }
-
-            // Create souls because item does not fit
-            Il2Cpp.Game.CreateSoul(SoulSystem.SoulType.Money, wizardGirl.transform.position, 400);
-        }));
+        FillerItemPatches.QueueDropItem(itemType);
     }
 
     /// <summary>
