@@ -184,17 +184,11 @@ public class ArchipelagoClient : MonoBehaviour
     /// <param name="helper">item helper which we can grab our item from</param>
     private static void OnItemReceived(ReceivedItemsHelper helper)
     {
-        Melon<LwnApMod>.Logger.Msg($"Called OnItemReceived.");
         var receivedItem = helper.DequeueItem();
-        Melon<LwnApMod>.Logger.Msg($"OnItemReceived: receivedItem {receivedItem.ItemName}");
         var itemName = ArchipelagoData.Items.Keys.ToArray()[receivedItem.ItemId - 1];
-        Melon<LwnApMod>.Logger.Msg($"OnItemReceived: name {itemName}");
         var itemGroup = ArchipelagoData.Items[itemName];
-        Melon<LwnApMod>.Logger.Msg($"OnItemReceived: group {itemGroup}");
         Thread.Sleep(20);
-
-        Melon<LwnApMod>.Logger.Msg($"OnItemReceived: helperindex {helper.Index}");
-        Melon<LwnApMod>.Logger.Msg($"OnItemReceived: ServerDataIndex {ServerData.Index}");
+        
         //Resync spell levels even when they were received before, otherwise skip
         if (helper.Index < ServerData.Index)
         {
