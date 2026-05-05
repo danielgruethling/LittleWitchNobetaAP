@@ -1237,37 +1237,30 @@ public static class ArchipelagoData
                 StageId = StageId.SpiritRealm,
                 LocationName = "Spirit Realm - Magic switch barrier switch",
                 ItemName = "Spirit Realm Magic Switch Barrier",
-                // Triggers when switch is flipped
-                TriggerPath = "/Scene/Room07/Special/SceneSwitch",
-                Actions = new()
-                {
-                    new MagicWallReleaseAction()
-                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/MagicWall01" },
-                    new MagicWallReleaseAction()
-                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/MagicWall02" },
-                    new MagicWallReleaseAction()
-                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/MagicWall03" },
-                    new MagicWallReleaseAction()
-                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/MagicWall04" },
-                },
-            },
-            new BarrierMapping()
-            {
-                StageId = StageId.SpiritRealm,
-                LocationName = "Spirit Realm - Magic switch barrier switch",
-                ItemName = "Spirit Realm Magic Switch Barrier",
                 // Triggers when lever is flipped
                 TriggerPath = "/Scene/Room07/Special/SceneSwitch",
                 Actions = new()
                 {
                     new MagicWallReleaseAction()
-                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/MagicWall01" },
+                    {
+                        StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/MagicWall01",
+                        DoNotExecuteOnItem = true,
+                    },
                     new MagicWallReleaseAction()
-                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/MagicWall02" },
+                    {
+                        StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/MagicWall02",
+                        DoNotExecuteOnItem = true,
+                    },
                     new MagicWallReleaseAction()
-                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/MagicWall03" },
+                    {
+                        StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/MagicWall03",
+                        DoNotExecuteOnItem = true,
+                    },
                     new MagicWallReleaseAction()
-                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/MagicWall04" },
+                    {
+                        StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room07/Other/MagicWall04",
+                        DoNotExecuteOnItem = true,
+                    },
                 },
             },
             new BarrierMapping()
@@ -1304,7 +1297,7 @@ public static class ArchipelagoData
                 LocationName = "Abyss - Trap gate trigger",
                 ItemName = "Abyss Trap Gates",
                 // Triggers when player leaves the area
-                TriggerPath = "/SEM/AreaEvent/Act02/Other/DoorBars02",
+                TriggerPath = "/SEM/AreaEvent/Act02/Other/FightDoorEnemy",
                 Actions = new()
                 {
                     new OpenDoorAction()
@@ -1591,7 +1584,7 @@ public static class ArchipelagoData
                 // This barrier only activates when entering the room from the front.
                 StageId = StageId.DarkTunnel,
                 ItemName = "Dark Tunnel Light Switch Barrier",
-                Actions = new ()
+                Actions = new()
                 {
                     new MagicWallStartAction()
                         { StageId = StageId.DarkTunnel, Path = "/SEM/AreaEvent/Room01To04/Other/MagicWall (1)" },
@@ -1622,7 +1615,7 @@ public static class ArchipelagoData
                 // These barriers only activate when entering the room from the front.
                 StageId = StageId.DarkTunnel,
                 ItemName = "Dark Tunnel Thunder Barrier",
-                Actions = new ()
+                Actions = new()
                 {
                     new MagicWallStartAction()
                         { StageId = StageId.DarkTunnel, Path = "/SEM/AreaEvent/Room06/Other/MagicWall (4)" },
@@ -1639,7 +1632,7 @@ public static class ArchipelagoData
                 ItemName = "Spirit Realm First Seal Magic Barrier",
                 Actions = new()
                 {
-                    new MagicWallReleaseAction()
+                    new MagicWallStartAction()
                         { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room05/Other/29_MagicWall" },
                 }
             },
@@ -1649,8 +1642,6 @@ public static class ArchipelagoData
                 ItemName = "Spirit Realm Second Seal Magic Barrier",
                 Actions = new()
                 {
-                    new MagicWallStartAction()
-                        { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room06/Other/03_MagicWall01" },
                     new MagicWallStartAction()
                         { StageId = StageId.SpiritRealm, Path = "/SEM/AreaEvent/Room06/Other/04_MagicWall02" },
                     new MagicWallStartAction()

@@ -58,11 +58,9 @@ public static class BarrierPatches
         }
 
         if (!Singletons.SceneManager) return;
-
-        _isExecutingBarrierActions = true;
         
         Melon<LwnApMod>.Logger.Msg($"Running ExecuteAllStageBarrierActions.");
-        
+
         foreach (var barrier in ArchipelagoData.Barriers.BarrierMappings)
         {
             var isAlwaysOpenGate = barrier.Type == BarrierType.MetalGate &&
@@ -78,7 +76,6 @@ public static class BarrierPatches
             var isRandomizedMagicPuzzle = ArchipelagoClient.ServerData.Settings?.BarrierBehaviour ==
                 ArchipelagoSettings.MagicPuzzleGateBehaviourType.Randomized && barrier.Type == BarrierType.MagicPuzzle;
             
-            
             if (isAlwaysOpenGate || isAlwaysOpenMagicPuzzle || (hasItem && isRandomizedGate) ||
                 (hasItem && isRandomizedMagicPuzzle))
             {
@@ -86,12 +83,14 @@ public static class BarrierPatches
 
                 MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
                 {
+                    _isExecutingBarrierActions = true;
                     foreach (var action in barrier.Actions
                                  .Where(barrierData => (int)barrierData.StageId == Singletons.SceneManager.stageId))
                     {
                         if (action.DoNotExecuteOnItem) continue;
                         action.Execute();
                     }
+                    _isExecutingBarrierActions = false;
                 }));
             }
         }
@@ -109,6 +108,8 @@ public static class BarrierPatches
 
             MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
             {
+                _isExecutingBarrierActions = true;
+
                 foreach (var action in barrier.Actions)
                 {
                     action.Execute();
@@ -117,10 +118,10 @@ public static class BarrierPatches
                             ? $"Barrier action {action.Path} executed on stage load."
                             : $"Barrier action {action.Path} executed as player lacks AP item {barrier.ItemName}.");
                 }
+                _isExecutingBarrierActions = false;
             }));
         }
 
-        _isExecutingBarrierActions = false;
     }
 
     private static void TryTriggerBarrierCheck(ArchipelagoSession session, string path)
@@ -227,7 +228,7 @@ public static class BarrierPatches
             TryTriggerBarrierCheck(ArchipelagoClient.Session, path);
         }
     }
-    
+
     [HarmonyPatch(typeof(SwitchDevice), nameof(SwitchDevice.ReleaseDevice))]
     private static class SwitchDeviceReleaseDevice
     {
@@ -256,6 +257,26 @@ public static class BarrierPatches
         [HarmonyPrefix]
         // ReSharper disable InconsistentNaming UnusedMember.Local
         private static void OpenScriptEventOpenEventPrefix(OpenScriptEvent __instance)
+            // ReSharper restore InconsistentNaming UnusedMember.Local
+        {
+            if (!ArchipelagoClient.IsAuthenticated || ArchipelagoClient.Session is null)
+            {
+                return;
+            }
+
+            if (!Singletons.SceneManager) return;
+
+            var path = UnityUtils.GetObjectPath(__instance.gameObject);
+            TryTriggerBarrierCheck(ArchipelagoClient.Session, path);
+        }
+    }
+    
+    [HarmonyPatch(typeof(EnemyEvent), nameof(EnemyEvent.OpenEvent))]
+    private static class EnemyEventOpenEvent
+    {
+        [HarmonyPrefix]
+        // ReSharper disable InconsistentNaming UnusedMember.Local
+        private static void EnemyEventOpenEventPrefix(OpenScriptEvent __instance)
             // ReSharper restore InconsistentNaming UnusedMember.Local
         {
             if (!ArchipelagoClient.IsAuthenticated || ArchipelagoClient.Session is null)
@@ -318,7 +339,11 @@ public static class BarrierPatches
             var path = UnityUtils.GetObjectPath(__instance.gameObject);
             Melon<LwnApMod>.Logger.Msg($"OpenDoor event detected with path {path}.");
 
-            TryTriggerBarrierCheck(ArchipelagoClient.Session, path);
+            if (!_isExecutingBarrierActions)
+            {
+                TryTriggerBarrierCheck(ArchipelagoClient.Session, path);
+            }
+
             return ShouldAllowEvent(ArchipelagoClient.Session, path);
         }
     }
@@ -416,7 +441,6 @@ public static class BarrierPatches
         private static void DisableDoorFlags(SceneManager __instance)
             // ReSharper restore UnusedMember.Local
         {
-
             if (Singletons.GameSave is null) return;
             // Door flags must be reset or else doors will be automatically open on
             // scene load without going through the OpenDoor.ReleaseEvent call.
@@ -434,10 +458,12 @@ public static class BarrierPatches
             Singletons.GameSave.flags.stage03Stage04BackDoor = false;
             Singletons.GameSave.flags.stage04Room02DoorSwitch = false;
             Singletons.GameSave.flags.stage04Room04CrystalBall = false;
-            
+
             Singletons.GameSave.flags.stage05Room02DoorSwitch = false;
             Singletons.GameSave.flags.stage05Room03To04DoorSwitch = false;
             Singletons.GameSave.flags.stage05Room04DoorSwitch = false;
+
+            Singletons.GameSave.flags.stage06Act02Alarm = false;
 
             Melon<LwnApMod>.Logger.Msg($"Reset door related flags.");
 
@@ -445,7 +471,7 @@ public static class BarrierPatches
             // without calling the typical method like ReleaseEvent, meaning logic could break
             // (e.g. player breaks switch and reloads stage, causing barrier to be released
             // even though they didn't get the corresponding barrier item)
-   
+
             Singletons.GameSave.flags.stage01MeetCat = false;
             Singletons.GameSave.flags.stage01Room03 = false;
             Singletons.GameSave.flags.stage01Room04 = false;
@@ -453,7 +479,7 @@ public static class BarrierPatches
             Singletons.GameSave.flags.stage01Room07Barrier = false;
             Singletons.GameSave.flags.stage01Room08Door = false;
             Singletons.GameSave.flags.stage01Room09Barrier = false;
-            
+
             Singletons.GameSave.flags.stage02Room06 = false;
             Singletons.GameSave.flags.stage02Room08 = false;
             Singletons.GameSave.flags.stage02Room09 = false;
@@ -461,14 +487,24 @@ public static class BarrierPatches
             Singletons.GameSave.flags.stage03Room02 = false;
             Singletons.GameSave.flags.stage03Room04Event02 = false;
             Singletons.GameSave.flags.stage03Room06 = false;
-            
+
+            // Reset arcane barrier and platform shortcuts
             Singletons.GameSave.flags.stage05Room04_01 = false;
             Singletons.GameSave.flags.stage05Room04_02 = false;
-            
+            // Reset Seal fights as it releases the barriers
+            Singletons.GameSave.flags.stage05Room05 = false;
+            Singletons.GameSave.flags.stage05Room06 = false;
+            // Reset lift, fire puzzle, and top barrier
             Singletons.GameSave.flags.stage05Room07_01 = false;
             Singletons.GameSave.flags.stage05Room07_02 = false;
             Singletons.GameSave.flags.stage05Room07_03 = false;
 
+            // Prevent giant maid barrier from releasing
+            Singletons.GameSave.flags.stage06Act02Clear = false;
+            // Prevent underground trial barrier from releasing
+            Singletons.GameSave.flags.stage06Act03Clear = false;
+            // Prevent lava ruins lava floor from moving early
+            Singletons.GameSave.flags.stage06Act04Siwtch = false;
             // Reset Abyss trial switches, otherwise teleporter will enable on init
             Singletons.GameSave.flags.stage06RoomCentralAct03 = false;
             Singletons.GameSave.flags.stage06RoomCentralAct04 = false;
