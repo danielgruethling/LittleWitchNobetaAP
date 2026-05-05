@@ -140,6 +140,7 @@ public class ArchipelagoClient : MonoBehaviour
             CustomWarpPatches.AddCustomSavePointsOnInit(Singletons.SceneManager);
             CustomWarpPatches.AddCustomSavePointsOnInitComplete(Singletons.SceneManager);
             CustomWarpPatches.AddCustomSavePointAssets(Singletons.SceneManager);
+            ArcaneDisabledPatches.DisableManaRegeneration(Singletons.SceneManager);
         }
         else
         {

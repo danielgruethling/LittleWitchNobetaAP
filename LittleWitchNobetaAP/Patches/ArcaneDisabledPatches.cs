@@ -43,16 +43,21 @@ public static class ArcaneDisabledPatches
         }
     }
 
+    public static void DisableManaRegeneration(SceneManager sm)
+    {
+        if (!(ArchipelagoClient.ServerData.Settings?.NoManaRegeneration ?? false)) return;
+        sm.wizardGirl.BaseData.g_fMPRecovery = 0;
+    }
+
     [HarmonyPatch(typeof(SceneManager), nameof(SceneManager.OnSceneInitComplete))]
     private static class OnSceneInitComplete
     {
         [HarmonyPostfix]
         // ReSharper disable InconsistentNaming UnusedMember.Local
-        private static void DisableManaRegeneration(SceneManager __instance)
+        private static void HandleManaRegen(SceneManager __instance)
             // ReSharper restore InconsistentNaming UnusedMember.Local
         {
-            if (!(ArchipelagoClient.ServerData.Settings?.NoManaRegeneration ?? false)) return;
-            __instance.wizardGirl.BaseData.g_fMPRecovery = 0;
+            DisableManaRegeneration(__instance);
         }
     }
 }
