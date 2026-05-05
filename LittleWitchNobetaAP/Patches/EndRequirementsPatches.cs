@@ -140,7 +140,7 @@ public class EndRequirementsPatches
         }
     }
 
-    // Allow teleporter open event if requirements are met
+    // Allow teleporter open event on final teleporter if requirements are met
     // This allows teleporter to open on cutscene if all three switches destroyed
     [HarmonyPatch(typeof(TeleportEnable), nameof(TeleportEnable.OpenEvent))]
     private static class TeleportEnableOpenEvent
@@ -150,6 +150,8 @@ public class EndRequirementsPatches
         private static bool HandleOpen(TeleportEnable __instance)
             // ReSharper restore InconsistentNaming
         {
+            if (Singletons.SceneManager.stageId != (int)StageId.Abyss) return true;
+            if (__instance.name != "00_OpenTeleport04") return true;
             return HasAbyssTrialRequirements();
         }
     }
