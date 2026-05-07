@@ -506,6 +506,17 @@ public static class BarrierPatches
             Singletons.GameSave.flags.stage03Room04Event02 = false;
             Singletons.GameSave.flags.stage03Room06 = false;
 
+            // Barrier switch before getting hat
+            Singletons.GameSave.flags.stage04Room02Switch = false;
+            // Initial crystal ball after getting back hat
+            Singletons.GameSave.flags.stage04Room01To04CrystalBall = false;
+            // Reset barriers in thunder requirement room
+            Singletons.GameSave.flags.stage04Room06 = false;
+            // Reset move floor switches
+            Singletons.GameSave.flags.stage04Room07MoveFloor01 = false;
+            Singletons.GameSave.flags.stage04Room07MoveFloor02 = false;
+            Singletons.GameSave.flags.stage04Room07MoveFloor03 = false;
+
             // Reset arcane barrier and platform shortcuts
             Singletons.GameSave.flags.stage05Room04_01 = false;
             Singletons.GameSave.flags.stage05Room04_02 = false;
