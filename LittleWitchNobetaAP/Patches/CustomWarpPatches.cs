@@ -410,7 +410,7 @@ public static class CustomWarpPatches
         }
 
         savePointObjCloneThroneSide.name = "Room08_02_WarpPoint";
-        savePointObjCloneThroneSide.transform.rotation = Quaternion.Euler(0, 0, 0);
+        savePointObjCloneThroneSide.transform.rotation = Quaternion.Euler(0, 180f, 0);
         var savePointThroneSide = savePointObjCloneThroneSide.GetComponentInChildren<SavePoint>(true);
         savePointThroneSide.name = "Room08_02_CustomWarpPoint";
         savePointThroneSide.TransferLevelNumber = 5;
