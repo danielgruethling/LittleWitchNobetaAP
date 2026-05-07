@@ -637,7 +637,7 @@ public static class ArchipelagoData
                 {
                     new OpenDoorAction { StageId = StageId.Shrine, Path = "/SEM/AreaEvent/Room06/Other/DoorBars01" },
                     new TrapWallReleaseAction()
-                        { StageId = StageId.Underground, Path = "/SEM/AreaEvent/Room07/Other/Tarp_Wall_Room07" }
+                        { StageId = StageId.Underground, Path = "/SEM/AreaEvent/Room07/Other/Tarp_Wall_Room07" },
                 },
             },
             new BarrierMapping()
@@ -762,6 +762,8 @@ public static class ArchipelagoData
                         { StageId = StageId.Underground, Path = "/SEM/AreaEvent/Room07/Other/DoorBars_Room07_01" },
                     new OpenDoorAction
                         { StageId = StageId.Underground, Path = "/SEM/AreaEvent/Room07/Other/DoorBars_Room07_02" },
+                    new TrapWallReleaseAction()
+                        { StageId = StageId.Underground, Path = "/SEM/AreaEvent/Room07/Other/Tarp_Wall_Room07" },
                     new TrapWallReleaseAction()
                         { StageId = StageId.LavaRuins, Path = "/SEM/AreaEvent/Room01/Other/Tarp_Wall01" },
                     new TrapWallReleaseAction()
@@ -1029,6 +1031,8 @@ public static class ArchipelagoData
                 Actions = new()
                 {
                     new MagicWallReleaseAction()
+                        { StageId = StageId.DarkTunnel, Path = "/SEM/AreaEvent/Room06/Other/MagicWall" },
+                    new MagicWallReleaseAction()
                         { StageId = StageId.DarkTunnel, Path = "/SEM/AreaEvent/Room06/Other/MagicWall (1)" },
                     new MagicWallReleaseAction()
                         { StageId = StageId.DarkTunnel, Path = "/SEM/AreaEvent/Room06/Other/MagicWall (2)" },
@@ -1054,7 +1058,7 @@ public static class ArchipelagoData
                 LocationName = "Dark Tunnel - Floating platform switch one",
                 ItemName = "Dark Tunnel Floating Platform One",
                 // Triggers when middle switch is destroyed
-                TriggerPath = "/SEM/AreaEvent/Room07/Other/LoadScript_Room07_01",
+                TriggerPath = "/Scene/Room07/Special/SwitchDevice (1)/AttackabclObject0701",
                 Actions = new()
                 {
                     new MoveFloorAction()
@@ -1067,7 +1071,7 @@ public static class ArchipelagoData
                 LocationName = "Dark Tunnel - Floating platform switch two",
                 ItemName = "Dark Tunnel Floating Platform Two",
                 // Triggers when right switch is destroyed
-                TriggerPath = "/SEM/AreaEvent/Room07/Other/LoadScript_Room07_02",
+                TriggerPath = "/Scene/Room07/Special/SwitchDevice (2)/AttackabclObject0702",
                 Actions = new()
                 {
                     new MoveFloorAction()
@@ -1080,7 +1084,7 @@ public static class ArchipelagoData
                 LocationName = "Dark Tunnel - Floating platform switch three",
                 ItemName = "Dark Tunnel Floating Platform Three",
                 // Triggers when left switch is destroyed
-                TriggerPath = "/SEM/AreaEvent/Room07/Other/LoadScript_Room07_03",
+                TriggerPath = "/Scene/Room07/Special/SwitchDevice (3)/AttackabclObject0703",
                 Actions = new()
                 {
                     new MoveFloorAction()
@@ -1485,18 +1489,22 @@ public static class ArchipelagoData
                     new TrapWallReleaseAction() { Path = "/SEM/AreaEvent/Room01/Other/Tarp_Wall" },
                 }
             },
-
-            // Below are stage load actions with an associated item =====================================
-
+            // Remove special DelayMoveFloor objects on the Dark Tunnel three floating platforms
+            // as they cause an infinite loop of trying to open the event when the MoveFloor event is blocked
             new StageLoadAction()
             {
-                // Barrier normally only enables when entering from front, meaning won't block movement
-                // from Enranged Armor arena room.
-                StageId = StageId.Shrine,
-                ItemName = "Secret Passage Second Fire Barrier",
+                StageId = StageId.DarkTunnel,
                 Actions = new()
                 {
-                    new MagicWallStartAction() { Path = "/SEM/AreaEvent/Room09/Other/MagicWall_Room09" }
+                    new SpecialAction(() =>
+                    {
+                        var delay1 = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Room07/Other/DelayMoveFloor01");
+                        var delay2 = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Room07/Other/DelayMoveFloor02");
+                        var delay3 = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Room07/Other/DelayMoveFloor03");
+                        UnityEngine.Object.Destroy(delay1);
+                        UnityEngine.Object.Destroy(delay2);
+                        UnityEngine.Object.Destroy(delay3);
+                    })
                 }
             },
             // Enables the cat prompt to get the absorption book item if it's in the scene
@@ -1512,6 +1520,20 @@ public static class ArchipelagoData
                         if (catBook is null) return;
                         catBook.gameObject.SetActive(true);
                     })
+                }
+            },
+
+            // Below are stage load actions with an associated item =====================================
+
+            new StageLoadAction()
+            {
+                // Barrier normally only enables when entering from front, meaning won't block movement
+                // from Enranged Armor arena room.
+                StageId = StageId.Shrine,
+                ItemName = "Secret Passage Second Fire Barrier",
+                Actions = new()
+                {
+                    new MagicWallStartAction() { Path = "/SEM/AreaEvent/Room09/Other/MagicWall_Room09" }
                 }
             },
             new StageLoadAction()
