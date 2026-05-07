@@ -171,19 +171,13 @@ public class ItemMenuPatches
             var quit = handlers.Find("Quit");
 
             // Move menu items to make room for new AP Items option
-            resume.transform.position =
-                new Vector3(gameStats.transform.position.x, 1370f, gameStats.transform.position.z);
-            magicStats.transform.position =
-                new Vector3(gameStats.transform.position.x, 1250f, gameStats.transform.position.z);
-            valuables.transform.position =
-                new Vector3(gameStats.transform.position.x, 1130f, gameStats.transform.position.z);
-            newChild.transform.position =
-                new Vector3(newChild.transform.position.x, 1010f, newChild.transform.position.z);
-            settings.transform.position =
-                new Vector3(gameStats.transform.position.x, 890f, gameStats.transform.position.z);
-            gameStats.transform.position =
-                new Vector3(gameStats.transform.position.x, 770f, gameStats.transform.position.z);
-            reload.transform.position = new Vector3(reload.transform.position.x, 650f, reload.transform.position.z);
+            resume.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 145f);
+            magicStats.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 85f);
+            valuables.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 25f);
+            newChild.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -35f);
+            settings.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -95f);
+            gameStats.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -155f);
+            reload.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -215f);
 
             // Make the option interact with mouse and keyboard/controller
             var valuablesUiHandler = valuables.GetComponent<UILabelHandler>();
@@ -215,7 +209,6 @@ public class ItemMenuPatches
             var template = handlers.Find("Valuables");
             template.GetComponent<UILabelHandler>().SetLabel("AP Lore Checks");
             template.GetComponent<RectTransform>().sizeDelta = new Vector2(200f, 70f);
-            Melon<LwnApMod>.Logger.Msg("Changed item menu name");
         }
         
         [HarmonyPostfix]
@@ -228,7 +221,6 @@ public class ItemMenuPatches
             var injectedMenu = canvasRoot.Find("UIApItemGuide");
             originalMenu.GetComponent<UIValuablesGuide>().isDirty = true;
             injectedMenu.GetComponent<UIValuablesGuide>().isDirty = true;
-            Melon<LwnApMod>.Logger.Msg("Marked item menus as dirty.");
         }
     }
 }
