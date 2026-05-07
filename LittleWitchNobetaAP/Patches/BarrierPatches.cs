@@ -433,6 +433,24 @@ public static class BarrierPatches
         }
     }
 
+    // Special handler to prevent thunder wall from releasing when the thunder chest is open
+    // or when the thunder room switches are destroyed
+    [HarmonyPatch(typeof(MultipleEventClose), nameof(MultipleEventClose.OpenEvent))]
+    private static class MultipleEventCloseOpenEvent
+    {
+        [HarmonyPrefix]
+        // ReSharper disable InconsistentNaming UnusedMember.Local
+        private static bool PreventThunderWallRelease(MultipleEventClose __instance)
+            // ReSharper restore InconsistentNaming UnusedMember.Local
+        {
+            if (!ArchipelagoClient.IsAuthenticated || ArchipelagoClient.Session is null) return true;
+            var path = UnityUtils.GetObjectPath(__instance.gameObject);
+            if (path != "/SEM/AreaEvent/Room05/Other/CloseMagicWallLightning") return true;
+            Melon<LwnApMod>.Logger.Msg($"Blocking magic wall multiple release.");
+            return false;
+        }
+    }
+
     [HarmonyPatch(typeof(SceneManager), nameof(SceneManager.Init))]
     private static class OnSceneInit
     {
