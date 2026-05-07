@@ -51,7 +51,7 @@ public static class FillerItemPatches
     private static void GiveBonkTrap()
     {
         if (Singletons.WizardGirl is null) return;
-        Melon<LwnApMod>.Logger.Error("Executing Bonk Trap.");
+        Melon<LwnApMod>.Logger.Msg("Executing Bonk Trap.");
         var trapWallDonor = Object.FindObjectOfType<Trap_Wall_Level01>(true);
         if (trapWallDonor == null)
         {
@@ -94,6 +94,7 @@ public static class FillerItemPatches
     private static void GiveManaDrainTrap()
     {
         if (Singletons.WizardGirl is null) return;
+        Melon<LwnApMod>.Logger.Msg("Executing Mana Drain Trap.");
         Singletons.WizardGirl.BaseData.SetMP(0);
     }
 
