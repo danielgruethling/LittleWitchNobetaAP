@@ -31,6 +31,10 @@ public class ItemMenuPatches
             var root = __instance.transform;
             var canvas = root.Find("Canvas");
             var itemsTemplate = canvas.Find("UIValuablesGuide");
+            if (itemsTemplate is null) {
+                Melon<LwnApMod>.Logger.Error("Failed to get UIValuablesGuide canvas to clone.");
+                return;
+            }
             var menuCopy = Object.Instantiate(itemsTemplate, canvas);
             menuCopy.name = "UIApItemGuide";
             var valuablesHandlerRoot = menuCopy.Find("ValuablesHandlersRoot");
@@ -146,6 +150,10 @@ public class ItemMenuPatches
             var root = __instance.transform;
             var handlers = root.Find("Handlers");
             var template = handlers.Find("Valuables");
+            if (template is null) {
+                Melon<LwnApMod>.Logger.Error("Failed to get Valuables UI handler to clone.");
+                return;
+            }
             var newChild = Object.Instantiate(template, handlers);
             var newChildUiHandler = newChild.GetComponent<UILabelHandler>();
             newChild.name = "APItems";

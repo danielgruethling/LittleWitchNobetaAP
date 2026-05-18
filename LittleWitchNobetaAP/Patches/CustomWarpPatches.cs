@@ -51,16 +51,15 @@ public static class CustomWarpPatches
         }
     }
 
-    private static void AddCustomWarpToShrine()
+    private static void AddCustomWarpToShrine(SaveSystem saveSystem)
     {
-        var saveSystem = UnityUtils.FindObjectByPath("/SaveSystem")?.GetComponent<SaveSystem>();
-        if (saveSystem is null)
+        var template = UnityUtils.FindObjectByPath("/Scene/Room06_Save/Special/SavePointTransfer");
+        if (template is null)
         {
-            Melon<LwnApMod>.Logger.Msg("Unable to find SaveSystem component");
+            Melon<LwnApMod>.Logger.Error("Failed to find template warp in AddCustomWarpToShrine.");
             return;
         }
 
-        var template = UnityUtils.FindObjectByPath("/Scene/Room06_Save/Special/SavePointTransfer");
         var savePointObjClone = Object.Instantiate(template);
         if (savePointObjClone is null)
         {
@@ -94,10 +93,10 @@ public static class CustomWarpPatches
             return;
         }
 
-        var newArray = new Il2CppReferenceArray<SavePoint?>(allSavePoints.Length + 1);
+        var newArray = new Il2CppReferenceArray<SavePoint>(allSavePoints.Length + 1);
         for (var i = 0; i < allSavePoints.Length; i++)
         {
-            newArray[i] = allSavePoints[i];
+            newArray[i] = allSavePoints[i]!;
         }
 
         newArray[allSavePoints.Length] = savePoint;
@@ -160,17 +159,16 @@ public static class CustomWarpPatches
         stairCopy2Renderer.lightmapIndex = 5;
     }
 
-    private static void AddCustomWarpToUnderground()
+    private static void AddCustomWarpToUnderground(SaveSystem saveSystem)
     {
-        var saveSystem = UnityUtils.FindObjectByPath("/SaveSystem")?.GetComponent<SaveSystem>();
-        if (saveSystem is null)
+        var template =
+            UnityUtils.FindObjectByPath("/Scene/Room01/Special/SavePointTransfer");
+        if (template is null)
         {
-            Melon<LwnApMod>.Logger.Msg("Unable to find SaveSystem component");
+            Melon<LwnApMod>.Logger.Error("Failed to find template warp in AddCustomWarpToUnderground.");
             return;
         }
 
-        var template =
-            UnityUtils.FindObjectByPath("/Scene/Room01/Special/SavePointTransfer");
         var savePointObjClone = Object.Instantiate(template);
         if (savePointObjClone is null)
         {
@@ -197,10 +195,10 @@ public static class CustomWarpPatches
             return;
         }
 
-        var newArray = new Il2CppReferenceArray<SavePoint?>(allSavePoints.Length + 1);
+        var newArray = new Il2CppReferenceArray<SavePoint>(allSavePoints.Length + 1);
         for (var i = 0; i < allSavePoints.Length; i++)
         {
-            newArray[i] = allSavePoints[i];
+            newArray[i] = allSavePoints[i]!;
         }
 
         newArray[allSavePoints.Length] = savePoint;
@@ -209,15 +207,8 @@ public static class CustomWarpPatches
         Melon<LwnApMod>.Logger.Msg("Injected custom save point into save system");
     }
 
-    private static void AddCustomWarpToLavaRuins()
+    private static void AddCustomWarpToLavaRuins(SaveSystem saveSystem)
     {
-        var saveSystem = UnityUtils.FindObjectByPath("/SaveSystem")?.GetComponent<SaveSystem>();
-        if (saveSystem is null)
-        {
-            Melon<LwnApMod>.Logger.Msg("Unable to find SaveSystem component");
-            return;
-        }
-
         // Move the door exit from Tania arena to inside of statue pit. This is to prevent logic issues with Teleport,
         // e.g. the user enters Lava Ruins, plays cutscene forcing player into statue pit, then teleport back to
         // underground grand hall statue and return to lava ruins without cutscene trigger, breaking region logic.
@@ -248,6 +239,11 @@ public static class CustomWarpPatches
         // Monica magic wall when respectively randomized
         var template =
             UnityUtils.FindObjectByPath("/Scene/Room01ToLevel02/Special/SavePointTransfer");
+        if (template is null)
+        {
+            Melon<LwnApMod>.Logger.Error("Failed to find template warp in AddCustomWarpToLavaRuins.");
+            return;
+        }
 
         var beforeMonicaObjClone = Object.Instantiate(template);
         var afterMonicaObjClone = Object.Instantiate(template);
@@ -311,10 +307,10 @@ public static class CustomWarpPatches
             return;
         }
 
-        var newArray = new Il2CppReferenceArray<SavePoint?>(allSavePoints.Length + 2);
+        var newArray = new Il2CppReferenceArray<SavePoint>(allSavePoints.Length + 2);
         for (var i = 0; i < allSavePoints.Length; i++)
         {
-            newArray[i] = allSavePoints[i];
+            newArray[i] = allSavePoints[i]!;
         }
 
         newArray[allSavePoints.Length] = beforeMonicaSavePoint;
@@ -399,20 +395,19 @@ public static class CustomWarpPatches
         }
     }
 
-    private static void AddCustomBridgeWarpToDarkTunnel()
+    private static void AddCustomBridgeWarpToDarkTunnel(SaveSystem saveSystem)
     {
         if (!(ArchipelagoClient.ServerData.Settings?.DisableDarkTunnelBridgeCollapse ?? false)) return;
-
-        var saveSystem = UnityUtils.FindObjectByPath("/SaveSystem")?.GetComponent<SaveSystem>();
-        if (saveSystem == null)
-        {
-            Melon<LwnApMod>.Logger.Msg("Unable to find SaveSystem component");
-            return;
-        }
 
         var template =
             UnityUtils.FindObjectByPath(
                 "/Scene/Room09ToBoss_Save/Special/SavePointTransfer_ToLevel01");
+        if (template is null)
+        {
+            Melon<LwnApMod>.Logger.Error("Failed to find template warp in AddCustomBridgeWarpToDarkTunnel.");
+            return;
+        }
+
         var savePointObjCloneThroneSide = Object.Instantiate(template);
         var savePointObjCloneNotThroneSide = Object.Instantiate(template);
         if (savePointObjCloneThroneSide is null || savePointObjCloneNotThroneSide is null)
@@ -449,16 +444,16 @@ public static class CustomWarpPatches
         }
 
         var allSavePoints = saveSystem.AllSavePoint;
-        if (allSavePoints == null)
+        if (allSavePoints is null)
         {
             Melon<LwnApMod>.Logger.Msg("AllSavePoints was null");
             return;
         }
 
-        var newArray = new Il2CppReferenceArray<SavePoint?>(allSavePoints.Length + 2);
+        var newArray = new Il2CppReferenceArray<SavePoint>(allSavePoints.Length + 2);
         for (var i = 0; i < allSavePoints.Length; i++)
         {
-            newArray[i] = allSavePoints[i];
+            newArray[i] = allSavePoints[i]!;
         }
 
         newArray[allSavePoints.Length] = savePointNotThroneSide;
@@ -467,7 +462,7 @@ public static class CustomWarpPatches
 
         Melon<LwnApMod>.Logger.Msg("Injected custom save point into save system");
     }
-    
+
     private static void AddCustomVanessaWarpToDarkTunnel()
     {
         if (!(ArchipelagoClient.ServerData.Settings?.SkippableBossesEnabled ?? false)) return;
@@ -480,6 +475,7 @@ public static class CustomWarpPatches
             Melon<LwnApMod>.Logger.Error("Failed to clone save point to make custom Spirit Realm exit");
             return;
         }
+
         savePointCopy.name = "VanessaCustomExit";
         savePointCopy.transform.position = new Vector3(36f, 20.5f, -545f);
 
@@ -488,24 +484,30 @@ public static class CustomWarpPatches
         // Set save point to invalid number to set to stage default
         savePointComponent.TransferSavePointNumber = -1;
         savePointComponent.EventType = PassiveEvent.PassiveEventType.Exit;
-        
+
         var effectTemplate =
             UnityUtils.FindObjectByPath("/Scene/Room09ToBoss_Save/Special/PassiveEventPrompt_CanNotBack/Effect");
         if (effectTemplate is not null)
         {
             Object.Instantiate(effectTemplate, savePointCopy.transform);
         }
-        
+
         Melon<LwnApMod>.Logger.Msg("Injected custom exit point");
     }
 
     private static void AddCustomWarpToSpiritRealm()
     {
         if (!(ArchipelagoClient.ServerData.Settings?.SkippableBossesEnabled ?? false)) return;
-        
+
         var templateSavePath = "/Scene/Room09_Save/Special/SavePoint/EventPointRoom09";
 
         var template = UnityUtils.FindObjectByPath(templateSavePath);
+        if (template is null)
+        {
+            Melon<LwnApMod>.Logger.Error("Failed to find template warp in AddCustomWarpToSpiritRealm.");
+            return;
+        }
+
         var savePointCopy = Object.Instantiate(template);
         if (savePointCopy is null)
         {
@@ -520,33 +522,54 @@ public static class CustomWarpPatches
         // Set save point to invalid number to set to stage default
         savePointComponent.TransferSavePointNumber = -1;
         savePointComponent.EventType = PassiveEvent.PassiveEventType.Exit;
-        
+
         Melon<LwnApMod>.Logger.Msg("Injected custom exit point");
+    }
+
+    public static void AddCustomSavePointsOnInit(SceneManager sm)
+    {
+        var saveSystem = UnityUtils.FindObjectByPath("/SaveSystem")?.GetComponent<SaveSystem>();
+        if (saveSystem is null)
+        {
+            Melon<LwnApMod>.Logger.Error("Failed to find save system.");
+            return;
+        }
+
+        var currentArray = saveSystem.AllSavePoint;
+        if (currentArray is null) return;
+
+        Melon<LwnApMod>.Logger.Msg($"SavePoints: Length = {currentArray.Length}");
+        for (var i = 0; i < currentArray.Length; i++)
+        {
+            Melon<LwnApMod>.Logger.Msg($"SavePoints [{i}] = {currentArray[i]?.name}");
+        }
+
+        AddCustomSavePointsOnInit(sm, saveSystem);
     }
 
     // Add custom warps that require injection into the save system on init
     // to allow two-way exits (as save point needs to be ready when Nobeta loads)
-    public static void AddCustomSavePointsOnInit(SceneManager sm)
+    private static void AddCustomSavePointsOnInit(SceneManager sm, SaveSystem saveSystem)
     {
         Melon<LwnApMod>.Logger.Msg("Running CustomWarp init patches");
         if (Singletons.WizardGirl is null) return;
         switch (sm.stageId)
         {
             case (int)StageId.Shrine:
-                AddCustomWarpToShrine();
+                AddCustomWarpToShrine(saveSystem);
                 break;
             case (int)StageId.Underground:
-                AddCustomWarpToUnderground();
+                AddCustomWarpToUnderground(saveSystem);
                 break;
             case (int)StageId.LavaRuins:
-                AddCustomWarpToLavaRuins();
+                AddCustomWarpToLavaRuins(saveSystem);
                 break;
             case (int)StageId.DarkTunnel:
-                AddCustomBridgeWarpToDarkTunnel();
+                AddCustomBridgeWarpToDarkTunnel(saveSystem);
                 break;
         }
     }
-    
+
     // Add custom warps that don't require injection into the SaveSystem
     // (i.e. one-way exits to existing save points)
     public static void AddCustomSavePointsOnInitComplete(SceneManager sm)
