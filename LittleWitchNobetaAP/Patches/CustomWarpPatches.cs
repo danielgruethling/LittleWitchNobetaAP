@@ -263,6 +263,12 @@ public static class CustomWarpPatches
         beforeMonicaSavePoint.name = "BeforeMonica_CustomWarpPoint";
         beforeMonicaSavePoint.TransferLevelNumber = 4;
         beforeMonicaSavePoint.TransferSavePointNumber = 7;
+        var beforeMonicaRebirthPoint = beforeMonicaObjClone.transform.FindChild("RebirthPoint");
+        if (beforeMonicaRebirthPoint is not null)
+        {
+            beforeMonicaRebirthPoint.localPosition = new Vector3(0f, 0f, 1.25f);
+            beforeMonicaRebirthPoint.rotation = Quaternion.Euler(0, 180f, 0);
+        }
 
         afterMonicaObjClone.name = "AfterMonica_WarpPoint";
         afterMonicaObjClone.transform.rotation = Quaternion.Euler(0, 0, 0);
@@ -270,6 +276,12 @@ public static class CustomWarpPatches
         afterMonicaSavePoint.name = "AfterMonica_CustomWarpPoint";
         afterMonicaSavePoint.TransferLevelNumber = 4;
         afterMonicaSavePoint.TransferSavePointNumber = 6;
+        var afterMonicaRebirthPoint = afterMonicaObjClone.transform.FindChild("RebirthPoint");
+        if (afterMonicaRebirthPoint is not null)
+        {
+            afterMonicaRebirthPoint.localPosition = new Vector3(0f, 0f, 1.25f);
+            afterMonicaRebirthPoint.rotation = Quaternion.Euler(0, 0, 0);
+        }
 
         // Before monica point placed before door after arena entrance blocked
         beforeMonicaObjClone.transform.position = new Vector3(18.6f, -12f, 287.75f);
