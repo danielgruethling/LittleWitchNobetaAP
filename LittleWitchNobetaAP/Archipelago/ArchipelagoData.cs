@@ -1804,6 +1804,12 @@ public static class ArchipelagoData
                 StageId = StageId.Abyss,
                 Trigger = "/SEM/AreaEvent/RoomStart/Other/LoadScript_RoomStart",
             },
+            // Cutscene when Nobeta passes the final teleporter into final boss room
+            new CutsceneTrigger()
+            {
+                StageId = StageId.Abyss,
+                Trigger = "/SEM/AreaEvent/RoomBoss/Other/DelayLoadScript",
+            },
         };
 
         public static readonly ILookup<int, CutsceneTrigger> ByStageId =

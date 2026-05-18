@@ -17,7 +17,13 @@ public static class CutsceneSkipPatches
             if (!cutscene.ShouldSkip()) continue;
             var gameObj = UnityUtils.FindObjectByPath(cutscene.Trigger);
             if (gameObj is null) continue;
-            gameObj.GetComponent<BoxCollider>().enabled = false;
+            var collider = gameObj.GetComponent<BoxCollider>();
+            if (collider is null)
+            {
+                Melon<LwnApMod>.Logger.Msg($"Could not find collider for cutscene trigger {cutscene.Trigger}.");
+                continue;
+            }
+            collider.enabled = false;
         }
     }
     
