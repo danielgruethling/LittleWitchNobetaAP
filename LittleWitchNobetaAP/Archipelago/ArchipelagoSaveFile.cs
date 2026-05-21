@@ -12,6 +12,9 @@ public class ArchipelagoSaveFile
         ArchipelagoSlotInfoCategory.CreateEntry("ReceivedItemCount", 0);
 
     private readonly MelonPreferences_Entry<string> _seed = ArchipelagoSlotInfoCategory.CreateEntry("Seed", "-1");
+
+    private readonly MelonPreferences_Entry<string> _checkedLoreItemLocations =
+        ArchipelagoSlotInfoCategory.CreateEntry("CheckedLoreItemLocations", "");
     /*private MelonPreferences_Entry<string> _hostName;
     private MelonPreferences_Entry<string> _slotName;
     private MelonPreferences_Entry<string> _password;
@@ -33,7 +36,11 @@ public class ArchipelagoSaveFile
         else
         {
             Melon<LwnApMod>.Logger.Msg($"Item count: {_receivedItemCount.Value}");
+            Melon<LwnApMod>.Logger.Msg($"Checked Lore Items: {string.Join(',', _checkedLoreItemLocations.Value)}");
             ArchipelagoClient.ServerData.Index = _receivedItemCount.Value;
+            ArchipelagoClient.ServerData.CheckedLoreItemLocations = _checkedLoreItemLocations.Value
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(int.Parse).ToList();
         }
 
         /*_hostName = ArchipelagoSlotInfoCategory.CreateEntry("HostName", string.Empty);
@@ -48,6 +55,14 @@ public class ArchipelagoSaveFile
     public void UpdateItemCount(int itemCount)
     {
         _receivedItemCount.Value = itemCount;
+    }
+
+    public void AddCheckedLoreItemLocation(int loreItemLocation)
+    {
+        var currentList = _checkedLoreItemLocations.Value.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(int.Parse).ToList();
+        currentList.Add(loreItemLocation);
+        _checkedLoreItemLocations.Value = string.Join(',', currentList);
     }
 
     public void Save()

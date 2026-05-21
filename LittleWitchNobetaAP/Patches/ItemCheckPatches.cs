@@ -101,7 +101,8 @@ public static class ItemCheckPatches
         {
             Melon<LwnApMod>.Logger.Msg($"Picked up item {__instance.GetItemData().name}");
             if (!__instance.GetItemData().name.Contains("Item_Property")) return true;
-            Melon<LwnApMod>.Logger.Msg($"Item property ID:  {__instance.GetItemData().GetPropertyID()}");
+            var propertyId = __instance.GetItemData().GetPropertyID();
+            Melon<LwnApMod>.Logger.Msg($"Item property ID:  {propertyId}");
 
             if (ArchipelagoClient.IsAuthenticated && ArchipelagoClient.Session is not null)
             {
@@ -111,7 +112,7 @@ public static class ItemCheckPatches
                     orderby int.Parse(new string(item.Key.TakeWhile(char.IsDigit).ToArray()))
                     select item.Key;
 
-                var loreItem = loreItems.ElementAt(__instance.GetItemData().GetPropertyID());
+                var loreItem = loreItems.ElementAt(propertyId);
 
                 if (loreItem is not null)
                 {
@@ -124,6 +125,8 @@ public static class ItemCheckPatches
                     {
                         var locationId = ArchipelagoData.GetLocationIdByName(locationName);
                         ArchipelagoClient.Session.Locations.CompleteLocationChecks(locationId);
+                        ArchipelagoClient.ServerData.AddCheckedLoreItemLocation(propertyId);
+                        Melon<LwnApMod>.Logger.Msg($"Added check lore item location: {propertyId}");
                     }
                     else
                     {
@@ -133,13 +136,46 @@ public static class ItemCheckPatches
                 else
                 {
                     Melon<LwnApMod>.Logger.Error(
-                        $"Did not find a lore item with id: {__instance.GetItemData().GetPropertyID() + 1}");
+                        $"Did not find a lore item with id: {propertyId + 1}");
                 }
             }
 
             MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
                 Object.Destroy(__instance.GetItemData().gameObject)));
 
+            return false;
+        }
+    }
+
+    // Prevent "No item" prompt from showing when player checks lore item location
+    [HarmonyPatch(typeof(Game), nameof(Game.AppearEventPrompt))]
+    private static class GameAppearEventPrompt
+    {
+        [HarmonyPrefix]
+        // ReSharper disable InconsistentNaming UnusedMember.Local
+        private static bool BlockNoItemMsg(Game __instance, string content)
+            // ReSharper restore InconsistentNaming UnusedMember.Local
+        {
+            return content != "No item";
+        }
+    }
+
+    // Because lore item checks won't spawn if a player already has a lore item, but lore
+    // items can be randomized, we tell the spawn logic that the player has no lore items
+    [HarmonyPatch(typeof(GamePropertyData), nameof(GamePropertyData.HasPropUnlocked))]
+    [HarmonyPatch(new[] { typeof(int) })]
+    private static class GamePropertyDataHasPropUnlocked
+    {
+        [HarmonyPrefix]
+        // ReSharper disable InconsistentNaming UnusedMember.Local
+        private static bool CheckIfLocationChecked(GamePropertyData __instance, int index, ref bool __result)
+            // ReSharper restore InconsistentNaming UnusedMember.Local
+        {
+            if (!ArchipelagoClient.IsAuthenticated || ArchipelagoClient.Session is null) return true;
+            // Use actual received lore data for special AP lore received menu
+            if (ItemMenuPatches.IsOnInjectedMenu) return true;
+            // Otherwise return fake lore items for checked locations
+            __result = ArchipelagoClient.ServerData.CheckedLoreItemLocations.Contains(index);
             return false;
         }
     }

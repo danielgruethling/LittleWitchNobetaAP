@@ -9,6 +9,7 @@ using LittleWitchNobetaAP.Patches;
 using LittleWitchNobetaAP.Utils;
 using MelonLoader;
 using UnityEngine;
+using Random = System.Random;
 
 namespace LittleWitchNobetaAP.Archipelago;
 
@@ -26,6 +27,7 @@ public class ArchipelagoClient : MonoBehaviour
     public static ArchipelagoSession? Session { get; private set; }
 
     private static Queue<Tuple<ItemInfo, int>> PendingItems { get; } = new();
+    private static readonly Random Random = new();
 
     /// <summary>
     ///     call to connect to an Archipelago session. Connection info should already be set up on ServerData
@@ -76,16 +78,15 @@ public class ArchipelagoClient : MonoBehaviour
         try
         {
             // it's safe to thread this function call but unity notoriously hates threading so do not use excessively
-            ThreadPool.QueueUserWorkItem(
-                _ => HandleConnectResult(
-                    Session?.TryConnectAndLogin(
-                        Game,
-                        ServerData.SlotName,
-                        ItemsHandlingFlags.AllItems,
-                        new Version(APVersion),
-                        password: ServerData.Password,
-                        requestSlotData: true
-                    ) ?? throw new ArgumentNullException()));
+            ThreadPool.QueueUserWorkItem(_ => HandleConnectResult(
+                Session?.TryConnectAndLogin(
+                    Game,
+                    ServerData.SlotName,
+                    ItemsHandlingFlags.AllItems,
+                    new Version(APVersion),
+                    password: ServerData.Password,
+                    requestSlotData: true
+                ) ?? throw new ArgumentNullException()));
         }
         catch (Exception e)
         {
@@ -131,6 +132,15 @@ public class ArchipelagoClient : MonoBehaviour
                         break;
                 }
             }
+
+            // Run all scene init patches on connect
+            BarrierPatches.ExecuteAllStageBarrierActions();
+            BossTriggerPatches.HandleBossTriggers();
+            CutsceneSkipPatches.DisableCutscenes();
+            CustomWarpPatches.AddCustomSavePointsOnInit(Singletons.SceneManager);
+            CustomWarpPatches.AddCustomSavePointsOnInitComplete(Singletons.SceneManager);
+            CustomWarpPatches.AddCustomSavePointAssets(Singletons.SceneManager);
+            ArcaneDisabledPatches.DisableManaRegeneration(Singletons.SceneManager);
         }
         else
         {
@@ -178,11 +188,22 @@ public class ArchipelagoClient : MonoBehaviour
         var itemName = ArchipelagoData.Items.Keys.ToArray()[receivedItem.ItemId - 1];
         var itemGroup = ArchipelagoData.Items[itemName];
         Thread.Sleep(20);
-
+        
         //Resync spell levels even when they were received before, otherwise skip
         if (helper.Index < ServerData.Index)
         {
-            if (itemGroup is "Attack Magics" or "Double Jump" or "Counter") GiveItem(receivedItem);
+            switch (itemGroup)
+            {
+                case "Attack Magics":
+                case "Double Jump":
+                case "Counter":
+                case "Magic Barrier":
+                case "Metal Gate":
+                case "Boss Souls":
+                case "Lore":
+                    GiveItem(receivedItem);
+                    break;
+            }
 
             return;
         }
@@ -231,6 +252,9 @@ public class ArchipelagoClient : MonoBehaviour
                 case "Bag Upgrade":
                     IncrementWitchAbility(itemName);
                     break;
+                case "Boss Tokens":
+                    GiveBossToken(itemName);
+                    break;
                 case "Boss Souls":
                     GiveBossSoul(itemName);
                     break;
@@ -238,8 +262,15 @@ public class ArchipelagoClient : MonoBehaviour
                 case "Filler":
                     GiveFiller(itemName);
                     break;
+                case "Trap":
+                    GiveTrap(itemName);
+                    break;
                 case "Lore":
                     GiveLore(itemName);
+                    break;
+                case "Magic Barrier":
+                case "Metal Gate":
+                    BarrierPatches.OpenBarrierByItemName(itemName);
                     break;
             }
 
@@ -292,14 +323,15 @@ public class ArchipelagoClient : MonoBehaviour
                 select item.Key).FirstOrDefault();
         if (loreItem is not null)
         {
-            /*if (Singletons.GameSave is not null)
+            if (Singletons.GameSave is not null)
             {
-                Singletons.GameSave.props.propCollection[int.Parse(new string(loreItem.TakeWhile(char.IsDigit).ToArray())) - 1] = true;
+                var targetPropertyId = int.Parse(new string(loreItem.TakeWhile(char.IsDigit).ToArray())) - 1;
+                Singletons.GameSave.props.UnlockProp(targetPropertyId);
             }
             else
             {
                 Melon<LwnApMod>.Logger.Error($"Game save is null");
-            }*/
+            }
         }
         else
         {
@@ -307,42 +339,77 @@ public class ArchipelagoClient : MonoBehaviour
         }
     }
 
+    private static void GiveSouls(SoulSystem.SoulType soulType, int numSouls)
+    {
+        if (Singletons.WizardGirl != null)
+            MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
+                Il2Cpp.Game.CreateSoul(soulType,
+                    Singletons.WizardGirl.transform.position, numSouls)));
+    }
+
     private static void GiveFiller(string itemName)
     {
         switch (itemName)
         {
-            case "HPCure":
+            case "Meager Life Crystal":
+                GiveGameItem(ItemSystem.ItemType.HPCureTemp);
+                break;
+            case "Faint Life Crystal":
                 GiveGameItem(ItemSystem.ItemType.HPCure);
                 break;
-            case "HPCureMiddle":
+            case "Fair Life Crystal":
                 GiveGameItem(ItemSystem.ItemType.HPCureMiddle);
                 break;
-            case "HPCureBig":
+            case "Fine Life Crystal":
                 GiveGameItem(ItemSystem.ItemType.HPCureBig);
                 break;
-            case "MPCure":
+            case "Meager Magic Crystal":
+                GiveGameItem(ItemSystem.ItemType.MPCureTemp);
+                break;
+            case "Faint Magic Crystal":
                 GiveGameItem(ItemSystem.ItemType.MPCure);
                 break;
-            case "MPCureMiddle":
+            case "Fair Magic Crystal":
                 GiveGameItem(ItemSystem.ItemType.MPCureMiddle);
                 break;
-            case "MPCureBig":
+            case "Fine Magic Crystal":
                 GiveGameItem(ItemSystem.ItemType.MPCureBig);
                 break;
-            case "Defense":
+            case "Faint Defense Crystal":
                 GiveGameItem(ItemSystem.ItemType.Defense);
                 break;
-            case "DefenseMiddle":
+            case "Fair Defense Crystal":
                 GiveGameItem(ItemSystem.ItemType.DefenseM);
                 break;
-            case "DefenseBig":
+            case "Fine Defense Crystal":
                 GiveGameItem(ItemSystem.ItemType.DefenseB);
                 break;
+            case "Faint Arcane Crystal":
+                GiveGameItem(ItemSystem.ItemType.Mysterious);
+                break;
+            case "Fair Arcane Crystal":
+                GiveGameItem(ItemSystem.ItemType.MysteriousM);
+                break;
+            case "Fine Arcane Crystal":
+                GiveGameItem(ItemSystem.ItemType.MysteriousB);
+                break;
+            case "Faint Holy Crystal":
+                GiveGameItem(ItemSystem.ItemType.Holy);
+                break;
+            case "Fair Holy Crystal":
+                GiveGameItem(ItemSystem.ItemType.HolyM);
+                break;
+            case "Fine Holy Crystal":
+                GiveGameItem(ItemSystem.ItemType.HolyB);
+                break;
             case "Souls":
-                if (Singletons.WizardGirl != null)
-                    MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
-                        Il2Cpp.Game.CreateSoul(SoulSystem.SoulType.Money,
-                            Singletons.WizardGirl.transform.position, 400)));
+                GiveSouls(SoulSystem.SoulType.Money, 400);
+                break;
+            case "HP Souls":
+                GiveSouls(SoulSystem.SoulType.HP, Random.Next(1, 400));
+                break;
+            case "MP Souls":
+                GiveSouls(SoulSystem.SoulType.MP, Random.Next(1, 400));
                 break;
             case "Trial Key":
                 GiveGameItem(ItemSystem.ItemType.SPMaxAdd);
@@ -350,29 +417,47 @@ public class ArchipelagoClient : MonoBehaviour
         }
     }
 
-    private static void GiveBossSoul(string itemName)
+    private static void GiveTrap(string itemName)
     {
         switch (itemName)
         {
-            case "Specter Armor Soul":
+            case "Bonk Trap":
+                FillerItemPatches.QueueTrap(TrapType.BonkTrap);
+                break;
+            case "Mana Drain Trap":
+                FillerItemPatches.QueueTrap(TrapType.ManaDrainTrap);
+                break;
+        }
+    }
+
+    private static void GiveBossToken(string itemName)
+    {
+        switch (itemName)
+        {
+            case "Specter Armor Token":
                 ServerData.KilledBosses.Add("Boss_Act01");
                 break;
-            case "Tania Soul":
+            case "Tania Token":
                 ServerData.KilledBosses.Add("Boss_Level02");
                 break;
-            case "Monica Soul":
+            case "Monica Token":
                 ServerData.KilledBosses.Add("Boss_Level03_Big");
                 break;
-            case "Enraged Armor Soul":
+            case "Enraged Armor Token":
                 ServerData.KilledBosses.Add("Boss_Act01_Plus");
                 break;
-            case "Vanessa Soul":
+            case "Vanessa Token":
                 ServerData.KilledBosses.Add("Boss_Level04");
                 break;
-            case "Vanessa V2 Soul":
+            case "Vanessa V2 Token":
                 ServerData.KilledBosses.Add("Boss_Level05");
                 break;
         }
+    }
+
+    private static void GiveBossSoul(string itemName)
+    {
+        BossTriggerPatches.enableBossTriggerOnItem(itemName);
     }
 
     private static void IncrementWitchAbility(string itemName)
@@ -413,43 +498,7 @@ public class ArchipelagoClient : MonoBehaviour
 
     private static void GiveGameItem(ItemSystem.ItemType itemType)
     {
-        MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>
-        {
-            var wizardGirl = Singletons.WizardGirl;
-            var items = wizardGirl?.g_PlayerItem;
-
-            if (wizardGirl == null || items == null) return;
-
-            Melon<LwnApMod>.Logger.Msg($"Giving item {itemType}");
-
-            // Find first empty slot if there's any
-            for (var i = 0; i < items.g_iItemSize; i++)
-            {
-                if (items.g_HoldItem[i] != ItemSystem.ItemType.Null) continue;
-
-                items.g_HoldItem[i] = itemType;
-                Singletons.StageUi.itemBar.UpdateItemSprite(items.g_HoldItem);
-
-                return;
-            }
-
-            // For trial keys replace first slot that is not a Trial Key and create souls for lost item
-            if (itemType == ItemSystem.ItemType.SPMaxAdd)
-                for (var i = 0; i < items.g_iItemSize; i++)
-                {
-                    if (items.g_HoldItem[i] == ItemSystem.ItemType.SPMaxAdd) continue;
-
-                    Melon<LwnApMod>.Logger.Msg($"Adding trial key to item slot {i}");
-                    items.g_HoldItem[i] = itemType;
-                    Singletons.StageUi.itemBar.UpdateItemSprite(items.g_HoldItem);
-                    Il2Cpp.Game.CreateSoul(SoulSystem.SoulType.Money, wizardGirl.transform.position, 400);
-
-                    return;
-                }
-
-            // Create souls because item does not fit
-            Il2Cpp.Game.CreateSoul(SoulSystem.SoulType.Money, wizardGirl.transform.position, 400);
-        }));
+        FillerItemPatches.QueueDropItem(itemType);
     }
 
     /// <summary>
