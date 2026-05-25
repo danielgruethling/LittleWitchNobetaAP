@@ -69,7 +69,6 @@ public class ArchipelagoSettings
 
     public GoalType Goal;
     public AbyssTrialRequirementType AbyssTrialRequirement;
-    public GameDifficulty Difficulty;
     public ShortcutGateBehaviourType ShortcutGateBehaviour;
     public MagicPuzzleGateBehaviourType BarrierBehaviour;
     public StartLevelSetting StartLevel;
@@ -105,7 +104,6 @@ public class ArchipelagoSettings
 
         Goal = (GoalType)(long)slotData["goal"];
         AbyssTrialRequirement = (AbyssTrialRequirementType)(long)slotData["abyss_trial_requirement"];
-        Difficulty = (GameDifficulty)(long)slotData["difficulty"];
         ShortcutGateBehaviour = (ShortcutGateBehaviourType)(long)slotData["shortcut_gate_behaviour"];
         BarrierBehaviour = (MagicPuzzleGateBehaviourType)(long)slotData["barrier_behaviour"];
         StartLevel = StartLevelSetting.OkunShrine;
