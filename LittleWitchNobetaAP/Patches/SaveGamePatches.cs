@@ -16,8 +16,11 @@ public static class SaveGamePatches
             Melon<LwnApMod>.Logger.Msg("Interrupting create new game save");
             MovementPatches.BlockInput = true;
             LwnApMod.ShowApConnectionUI = true;
+            LwnApMod.IsNewGame = true;
+            LwnApMod.SelectedSaveSlot = (__instance.pageIndex * 3) + __instance.lastSelectedSaveNumber + 1;
+            LwnApMod.GameDifficulty = difficulty;
 
-            return true;
+            return false;
         }
     }
 
@@ -30,8 +33,10 @@ public static class SaveGamePatches
             Melon<LwnApMod>.Logger.Msg("Interrupting load game save");
             MovementPatches.BlockInput = true;
             LwnApMod.ShowApConnectionUI = true;
+            LwnApMod.IsNewGame = false;
+            LwnApMod.SelectedSaveSlot = (__instance.pageIndex * 3) + __instance.lastSelectedSaveNumber + 1;
 
-            return true;
+            return false;
         }
     }
 

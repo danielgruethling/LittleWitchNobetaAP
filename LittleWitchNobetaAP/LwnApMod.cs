@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Il2Cpp;
 using LittleWitchNobetaAP.Archipelago;
 using LittleWitchNobetaAP.Patches;
 using MelonLoader;
@@ -11,6 +12,7 @@ public class LwnApMod : MelonMod
     private const string ModDisplayInfo = $"{MyPluginInfo.PluginName} v{MyPluginInfo.PluginVersion}";
     private const string APDisplayInfo = $"Archipelago v{ArchipelagoClient.APVersion}";
     private static bool _showApConnectionGUI;
+    private static ArchipelagoClient? ArchipelagoClient { get; set; }
 
     private static float _guiScale = 1f;
     private static int _stringCursorPosition;
@@ -39,7 +41,9 @@ public class LwnApMod : MelonMod
         }
     }
 
-    public static ArchipelagoClient? ArchipelagoClient { get; private set; }
+    public static int SelectedSaveSlot { get; set; }
+    public static bool IsNewGame { get; set; }
+    public static GameDifficulty GameDifficulty { get; set; }
 
     public override void OnInitializeMelon()
     {

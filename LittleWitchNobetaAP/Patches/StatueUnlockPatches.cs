@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Archipelago.MultiClient.Net.Enums;
+using HarmonyLib;
 using Il2Cpp;
 using LittleWitchNobetaAP.Archipelago;
 using LittleWitchNobetaAP.Utils;
@@ -11,9 +12,11 @@ public static class StatueUnlockPatches
 {
     private const float UnlockDistance = 15f;
     private const string DataStorageKeyUnlockedStatues = "unlocked_statues";
+    private const string DataStorageKeyLwnMap = "lwn_map";
     private const string StatueKeySeparator = ":::";
 
     private static SavePoint[]? _statues;
+    private static int _mapIndex;
 
     [HarmonyPatch(typeof(SceneManager), nameof(SceneManager.OnSceneInitComplete))]
     private static class OnSceneInitComplete
@@ -48,7 +51,9 @@ public static class StatueUnlockPatches
         private static void OnWizardGirlUpdatePostfix(WizardGirlManage __instance)
             // ReSharper restore InconsistentNaming UnusedMember.Local
         {
-            switch (Singletons.SceneManager.stageId)
+            var stageId = Singletons.SceneManager.stageId;
+            
+            switch (stageId)
             {
                 case > 1 when __instance.GetPlayerStatus() == NobetaState.SavePointUI:
                     // Check if new items received while offline
@@ -57,6 +62,20 @@ public static class StatueUnlockPatches
                 case > 1:
                     ArchipelagoClient.DeathLinkHandler?.KillPlayer();
                     break;
+            }
+
+            if (stageId != _mapIndex && ArchipelagoClient.Session is not null)
+            {
+                _mapIndex = stageId;
+                
+                try
+                {
+                    ArchipelagoClient.Session.DataStorage[Scope.Slot, DataStorageKeyLwnMap] = stageId;
+                }
+                catch (Exception e)
+                {
+                    Melon<LwnApMod>.Logger.Error(e);
+                }
             }
 
             if (_statues is null) return;
@@ -92,7 +111,7 @@ public static class StatueUnlockPatches
         {
             try
             {
-                var dataStorageContent = ArchipelagoClient.Session?.DataStorage[DataStorageKeyUnlockedStatues];
+                var dataStorageContent = ArchipelagoClient.Session?.DataStorage[Scope.Slot, DataStorageKeyUnlockedStatues];
                 if (ArchipelagoClient.Session is null || dataStorageContent is null) return;
 
                 var unlockedStatues = (await dataStorageContent.GetAsync()).ToObject<string>();
@@ -105,7 +124,7 @@ public static class StatueUnlockPatches
                     unlockedStatues = statueName;
                 }
 
-                ArchipelagoClient.Session.DataStorage[DataStorageKeyUnlockedStatues] = unlockedStatues;
+                ArchipelagoClient.Session.DataStorage[Scope.Slot, DataStorageKeyUnlockedStatues] = unlockedStatues;
             }
             catch (Exception e)
             {

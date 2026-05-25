@@ -23,6 +23,17 @@ public class ArchipelagoSessionData
     public string SlotName;
     public Dictionary<long, List<SceneEvent>> StoredEvents;
     public ArchipelagoSettings? Settings;
+    public HashSet<string> OpenedTrials { get; }
+
+    public int Index
+    {
+        get => _index;
+        set
+        {
+            _index = value;
+            ArchipelagoClient.ApSaveFile?.UpdateItemCount(value);
+        }
+    }
 
     public ArchipelagoSessionData() : this("archipelago.gg", "38281", "Player1", string.Empty)
     {
@@ -36,24 +47,8 @@ public class ArchipelagoSessionData
         Password = password;
         CheckedLocations = new List<long>();
         StoredEvents = new Dictionary<long, List<SceneEvent>>();
-        KilledBosses = new HashSet<string>();
         OpenedTrials = new HashSet<string>();
     }
-
-    public int Index
-    {
-        get => _index;
-        set
-        {
-            _index = value;
-            ArchipelagoClient.ApSaveFile?.UpdateItemCount(value);
-        }
-    }
-
-    public HashSet<string> KilledBosses { get; }
-    public HashSet<string> OpenedTrials { get; }
-
-    public bool NeedSlotData => _slotData == null;
 
     public void AddCheckedLoreItemLocation(int loreItemLocation)
     {

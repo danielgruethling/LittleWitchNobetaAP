@@ -6,7 +6,6 @@ namespace LittleWitchNobetaAP.Patches;
 
 public static class StartPatches
 {
-    private const string PluginVersion = "0.3.0";
     private static string? GameVersionText { get; set; }
     private static string? RandomizerVersionText { get; set; }
 
@@ -25,7 +24,7 @@ public static class StartPatches
             var versionText = versionGameObject.GetComponent<Text>();
 
             GameVersionText = versionText.text;
-            RandomizerVersionText = $"Ver {PluginVersion}";
+            RandomizerVersionText = $"Ver {MyPluginInfo.PluginVersion}";
 
             versionText.text = $"Game: {GameVersionText} Randomizer: {RandomizerVersionText}";
         }
