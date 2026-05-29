@@ -1014,7 +1014,7 @@ public static class ArchipelagoData
                 LocationName = "Dark Tunnel - Light switch after getting the hat",
                 ItemName = "Dark Tunnel Light Switch Barrier",
                 // Triggers when crystal ball is filled with light
-                TriggerPath = "/SEM/AreaEvent/Room01To02/Other/LoadScript_CrystalBallCompleteSlowMotion",
+                TriggerPath = "/SEM/AreaEvent/Room01To02/Other/LoadScript_CrystalBallCompleteSlowMotion ",
                 Actions = new()
                 {
                     new MagicWallReleaseAction()
