@@ -1014,7 +1014,7 @@ public static class ArchipelagoData
                 LocationName = "Dark Tunnel - Light switch after getting the hat",
                 ItemName = "Dark Tunnel Light Switch Barrier",
                 // Triggers when crystal ball is filled with light
-                TriggerPath = "/SEM/AreaEvent/Room01To02/Other/LoadScript_CrystalBallCompleteSlowMotion",
+                TriggerPath = "/SEM/AreaEvent/Room01To02/Other/LoadScript_CrystalBallCompleteSlowMotion ",
                 Actions = new()
                 {
                     new MagicWallReleaseAction()
@@ -1507,6 +1507,23 @@ public static class ArchipelagoData
                     })
                 }
             },
+            // Set delay for Abyss trap gate events to a large as possible to prevent the parent MultipleEventOpen event
+            // from attempting to open the gates every frame when the player doesn't have the gate item.
+            new StageLoadAction()
+            {
+                StageId = StageId.Abyss,
+                Actions = new()
+                {
+                    new SpecialAction(() =>
+                    {
+                        var trapDoorsEvent = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Act02/Other/OpenDoor");
+                        var multipleEventOpen = trapDoorsEvent?.GetComponent<MultipleEventOpen>();
+                        if (multipleEventOpen is null || multipleEventOpen.DeltaTime.Length != 3) return;
+                        multipleEventOpen.DeltaTime[0] = float.MaxValue;
+                        multipleEventOpen.DeltaTime[1] = float.MaxValue;
+                    })
+                }
+            },
             // Enables the cat prompt to get the absorption book item if it's in the scene
             // This overrides the expected state the game has for this prompt to keep the check always accessible
             new StageLoadAction()
@@ -1723,6 +1740,18 @@ public static class ArchipelagoData
     {
         public static readonly List<CutsceneTrigger> Cutscenes = new()
         {
+            // Initial cutscene when entering shrine. Without the cutscene the player will spawn facing the wrong
+            // way (which isn't a big issue). This removal is required for randomized start as this triggers even
+            // if player enters Shrine through a different entrance.
+            new CutsceneTrigger()
+            {
+                StageId = StageId.Shrine,
+                Trigger = "/SEM/AreaEvent/Room01/Other/Room01_OpenDoorScript",
+                ShouldSkip = () =>
+                    (ArchipelagoClient.ServerData.Settings?.DisableUnimportantCutscenes ?? false) ||
+                    ((ArchipelagoClient.ServerData.Settings?.StartLevel !=
+                      ArchipelagoSettings.StartLevelSetting.OkunShrine))
+            },
             // Cutscene when you enter Underground after first boss. This triggers even if the player enters through
             // the shortcut door, which teleports the player to the start and breaks logic
             new CutsceneTrigger()
