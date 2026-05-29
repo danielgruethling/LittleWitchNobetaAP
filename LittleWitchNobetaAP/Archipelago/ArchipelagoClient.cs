@@ -191,15 +191,6 @@ public class ArchipelagoClient : MonoBehaviour
                 // Load save
                 var switchData = new SceneSwitchData(gameSave.basic.stage, gameSave.basic.savePoint, false);
                 Il2Cpp.Game.SwitchGameSave(gameSave);
-
-                // Run all scene init patches on connect
-                BarrierPatches.ExecuteAllStageBarrierActions();
-                BossTriggerPatches.HandleBossTriggers();
-                CustomWarpPatches.AddCustomSavePointsOnInit(Singletons.SceneManager);
-                CustomWarpPatches.AddCustomSavePointsOnInitComplete(Singletons.SceneManager);
-                CustomWarpPatches.AddCustomSavePointAssets(Singletons.SceneManager);
-                ArcaneDisabledPatches.DisableManaRegeneration(Singletons.SceneManager);
-                
                 Il2Cpp.Game.SwitchScene(switchData);
             }));
             
