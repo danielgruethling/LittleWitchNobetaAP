@@ -1507,6 +1507,23 @@ public static class ArchipelagoData
                     })
                 }
             },
+            // Set delay for Abyss trap gate events to a large as possible to prevent the parent MultipleEventOpen event
+            // from attempting to open the gates every frame when the player doesn't have the gate item.
+            new StageLoadAction()
+            {
+                StageId = StageId.Abyss,
+                Actions = new()
+                {
+                    new SpecialAction(() =>
+                    {
+                        var trapDoorsEvent = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Act02/Other/OpenDoor");
+                        var multipleEventOpen = trapDoorsEvent?.GetComponent<MultipleEventOpen>();
+                        if (multipleEventOpen is null || multipleEventOpen.DeltaTime.Length != 3) return;
+                        multipleEventOpen.DeltaTime[0] = float.MaxValue;
+                        multipleEventOpen.DeltaTime[1] = float.MaxValue;
+                    })
+                }
+            },
             // Enables the cat prompt to get the absorption book item if it's in the scene
             // This overrides the expected state the game has for this prompt to keep the check always accessible
             new StageLoadAction()
