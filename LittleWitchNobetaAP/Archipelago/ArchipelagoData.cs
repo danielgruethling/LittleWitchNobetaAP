@@ -1740,6 +1740,18 @@ public static class ArchipelagoData
     {
         public static readonly List<CutsceneTrigger> Cutscenes = new()
         {
+            // Initial cutscene when entering shrine. Without the cutscene the player will spawn facing the wrong
+            // way (which isn't a big issue). This removal is required for randomized start as this triggers even
+            // if player enters Shrine through a different entrance.
+            new CutsceneTrigger()
+            {
+                StageId = StageId.Shrine,
+                Trigger = "/SEM/AreaEvent/Room01/Other/Room01_OpenDoorScript",
+                ShouldSkip = () =>
+                    (ArchipelagoClient.ServerData.Settings?.DisableUnimportantCutscenes ?? false) ||
+                    ((ArchipelagoClient.ServerData.Settings?.StartLevel !=
+                      ArchipelagoSettings.StartLevelSetting.OkunShrine))
+            },
             // Cutscene when you enter Underground after first boss. This triggers even if the player enters through
             // the shortcut door, which teleports the player to the start and breaks logic
             new CutsceneTrigger()
