@@ -36,13 +36,15 @@ public class EndRequirementsPatches
         {
             case ArchipelagoSettings.AbyssTrialRequirementType.MagicMaster:
             {
-                return Singletons.GameSave?.stats is
-                {
-                    secretMagicLevel: >= 5,
-                    iceMagicLevel: >= 5,
-                    fireMagicLevel: >= 5,
-                    thunderMagicLevel: >= 5,
-                };
+                var requiredLevel = ArchipelagoClient.ServerData.Settings.CondensedMagic
+                    ? 1
+                    : ArchipelagoClient.ServerData.Settings.MaxMagicLevel;
+
+                return Singletons.GameSave?.stats is { } stats &&
+                       stats.secretMagicLevel >= requiredLevel &&
+                       stats.iceMagicLevel >= requiredLevel &&
+                       stats.fireMagicLevel >= requiredLevel &&
+                       stats.thunderMagicLevel >= requiredLevel;
             }
             case ArchipelagoSettings.AbyssTrialRequirementType.BossHunt:
             {
@@ -175,17 +177,19 @@ public class EndRequirementsPatches
             var locationName = path switch
             {
                 "/Scene/RoomCentral/Special/SwitchDevice_Strengthen (1)/AttackabclObject02_Act03" =>
-                    "Abyss - Underground Trial Complete",
+                    "Abyss - Underground trial complete",
                 "/Scene/RoomCentral/Special/SwitchDevice_Strengthen/AttackabclObject01_Act04" =>
-                    "Abyss - Lava Ruins Trial Complete",
+                    "Abyss - Lava Ruins trial complete",
                 "/Scene/RoomCentral/Special/SwitchDevice_Strengthen (2)/AttackabclObject03_Act05" =>
-                    "Abyss - Dark Tunnel Trial Complete",
+                    "Abyss - Dark Tunnel trial complete",
                 _ => null
             };
 
             if (locationName is null) return;
             Melon<LwnApMod>.Logger.Msg($"Abyss trial switch release event detected with path {path}.");
             var locationId = ArchipelagoData.GetLocationIdByName(locationName);
+            Melon<LwnApMod>.Logger.Msg(
+                $"AP Location: Abyss Trial \"{locationName}\" ({locationId}) at trigger {path} checked.");
             ArchipelagoClient.Session.Locations.CompleteLocationChecks(locationId);
 
         }
@@ -218,19 +222,22 @@ public class EndRequirementsPatches
             {
                 case ArchipelagoSettings.GoalType.MagicMaster:
                 {
-                    if (Singletons.GameSave?.stats is not
-                        {
-                            secretMagicLevel: >= 5,
-                            iceMagicLevel: >= 5,
-                            fireMagicLevel: >= 5,
-                            thunderMagicLevel: >= 5,
-                        })
+                    var requiredLevel = ArchipelagoClient.ServerData.Settings.CondensedMagic
+                        ? 1
+                        : ArchipelagoClient.ServerData.Settings.MaxMagicLevel;
+                    var hasMetRequirements = Singletons.GameSave?.stats is { } stats &&
+                                             stats.secretMagicLevel >= requiredLevel &&
+                                             stats.iceMagicLevel >= requiredLevel &&
+                                             stats.fireMagicLevel >= requiredLevel &&
+                                             stats.thunderMagicLevel >= requiredLevel;
+
+                    if (hasMetRequirements)
                     {
-                        Game.AppearEventPrompt("Only a Magic Master may approach the throne.");
+                        _nonotaTrigger.SetActive(true);
                     }
                     else
                     {
-                        _nonotaTrigger.SetActive(true);
+                        Game.AppearEventPrompt("Only a Magic Master may approach the throne.");
                     }
 
                     break;
@@ -326,7 +333,7 @@ public class EndRequirementsPatches
                     case ArchipelagoSettings.AbyssTrialRequirementType.RandomizedItem:
                         Game.AppearEventPrompt("Only a holder of the three trial items may open the path.");
                         break;
-                    case  ArchipelagoSettings.AbyssTrialRequirementType.Vanilla:
+                    case ArchipelagoSettings.AbyssTrialRequirementType.Vanilla:
                         Game.AppearEventPrompt("Complete the three trials to open the path.");
                         break;
                 }

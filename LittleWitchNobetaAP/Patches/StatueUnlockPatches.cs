@@ -90,7 +90,13 @@ public static class StatueUnlockPatches
 
                 var distance = Vector3.Distance(statue.transform.position, __instance.transform.position);
 
-                if (!(distance < UnlockDistance)) continue;
+                // Special handler for Shrine main hall statue to prevent unlocks through the wall from
+                // the Underground shortcut room.
+                if (UnityUtils.GetObjectPath(statue.gameObject) ==
+                    "/Scene/Room06_Save/Special/SavePoint/01_EventPointRoom06" &&
+                    distance >= 7) continue;
+                
+                if (distance >= UnlockDistance) continue;
 
                 Melon<LwnApMod>.Logger.Msg(
                     $"Statue '{statue.name}#{statue.TransferLevelNumber}#{savePointNumber}' auto-unlocked");

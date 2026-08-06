@@ -500,25 +500,26 @@ public class ArchipelagoClient : MonoBehaviour
 
     private static void IncrementWitchAbility(string itemName)
     {
+        var attackMagicIncAmt = ServerData.Settings?.CondensedMagic ?? false ? ServerData.Settings?.MaxMagicLevel ?? 1 : 1;
         switch (itemName)
         {
             case "Arcane":
-                if (Singletons.GameSave != null) Singletons.GameSave.stats.secretMagicLevel += 1;
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.secretMagicLevel += attackMagicIncAmt;
                 break;
             case "Ice":
-                if (Singletons.GameSave != null) Singletons.GameSave.stats.iceMagicLevel += 1;
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.iceMagicLevel += attackMagicIncAmt;
                 break;
             case "Fire":
-                if (Singletons.GameSave != null) Singletons.GameSave.stats.fireMagicLevel += 1;
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.fireMagicLevel += attackMagicIncAmt;
                 break;
             case "Thunder":
-                if (Singletons.GameSave != null) Singletons.GameSave.stats.thunderMagicLevel += 1;
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.thunderMagicLevel += attackMagicIncAmt;
                 break;
             case "Wind":
-                if (Singletons.GameSave != null) Singletons.GameSave.stats.windMagicLevel += 1;
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.windMagicLevel += attackMagicIncAmt;
                 break;
             case "Mana Absorption":
-                if (Singletons.GameSave != null) Singletons.GameSave.stats.manaAbsorbLevel += 1;
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.manaAbsorbLevel += attackMagicIncAmt;
                 break;
             case "Progressive Bag Upgrade":
                 MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>

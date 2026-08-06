@@ -59,12 +59,11 @@ public class ArchipelagoSettings
 
     public enum StartLevelSetting
     {
-        Random,
         OkunShrine,
         UndergroundCave,
         LavaRuins,
         DarkTunnel,
-        SpiritRealm
+        SpiritRealm,
     }
 
     public GoalType Goal;
@@ -84,6 +83,8 @@ public class ArchipelagoSettings
     public bool RandomizeLightOrbEnabled;
     public bool RandomizeCrystalBallsEnabled;
     public bool RandomizeCrystalsEnabled;
+    public bool CondensedMagic;
+    public int MaxMagicLevel;
     public bool EntranceRandomizationEnabled;
     public bool TrialKeysEnabled;
     public bool DeathLinkEnabled;
@@ -106,7 +107,7 @@ public class ArchipelagoSettings
         AbyssTrialRequirement = (AbyssTrialRequirementType)(long)slotData["abyss_trial_requirement"];
         ShortcutGateBehaviour = (ShortcutGateBehaviourType)(long)slotData["shortcut_gate_behaviour"];
         BarrierBehaviour = (MagicPuzzleGateBehaviourType)(long)slotData["barrier_behaviour"];
-        StartLevel = StartLevelSetting.OkunShrine;
+        StartLevel = (StartLevelSetting)(long)slotData["starting_area"];
         NoManaRegeneration = (bool)slotData["no_mana_regeneration"];
         RandomizeBossSoulsEnabled = (bool)slotData["randomize_boss_souls"];
         RandomizedBossTokensEnabled = (bool)slotData["randomize_boss_tokens"];
@@ -122,6 +123,8 @@ public class ArchipelagoSettings
         RandomizeLightOrbEnabled = (bool)slotData["randomize_light_orb"];
         RandomizeCrystalBallsEnabled = (bool)slotData["randomize_crystal_balls"];
         RandomizeCrystalsEnabled = (bool)slotData["randomize_crystals"];
+        CondensedMagic = (bool)slotData["condensed_magic"];
+        MaxMagicLevel = (int)(long)slotData["max_magic_level"];
         DisableDarkTunnelThunderWall = (bool)slotData["disable_dark_tunnel_thunder_wall"];
         DisableDarkTunnelBridgeCollapse = (bool)slotData["disable_dark_tunnel_bridge_collapse"];
         DisableUnimportantCutscenes = (bool)slotData["disable_unimportant_cutscenes"];
