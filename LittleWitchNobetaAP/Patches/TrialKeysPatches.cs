@@ -16,6 +16,8 @@ public static class TrialKeysPatches
 
     public static bool TrialKeysEnabled { get; set; }
 
+    public static List<string> CollectedTrialKeys { get; } = new();
+
     private static bool CheckUseItem(ItemSystem.ItemType itemType)
     {
         if (itemType != ItemSystem.ItemType.SPMaxAdd) return true;
@@ -49,6 +51,38 @@ public static class TrialKeysPatches
 
                 return;
             }
+            
+            //Check for trial key
+            switch (__instance.name)
+            {
+                case "OpenLightRoomStart01":
+                    if (CollectedTrialKeys.Contains("Lava Ruins Trial Key"))
+                    {
+                        __instance.OpenEvent();
+                        sessionData.OpenedTrials.Add(__instance.name);
+                        return;
+                    }
+
+                    break;
+                case "OpenLightRoomStart02":
+                    if (CollectedTrialKeys.Contains("Underground Trial Key"))
+                    {
+                        __instance.OpenEvent();
+                        sessionData.OpenedTrials.Add(__instance.name);
+                        return;
+                    }
+
+                    break;
+                case "OpenLightRoomStart03":
+                    if (CollectedTrialKeys.Contains("Dark Tunnel Trial Key"))
+                    {
+                        __instance.OpenEvent();
+                        sessionData.OpenedTrials.Add(__instance.name);
+                        return;
+                    }
+
+                    break;
+            }
 
             __instance.CheckPlayerEnter = false;
 
@@ -69,42 +103,6 @@ public static class TrialKeysPatches
             // ReSharper restore UnusedMember.Local
         {
             Openers.Clear();
-        }
-    }
-
-    // Open trial on token drop
-    [HarmonyPatch(typeof(PlayerItem), nameof(PlayerItem.DiscardItemSuccess))]
-    private static class DiscardItem
-    {
-        [HarmonyPostfix]
-        // ReSharper disable UnusedMember.Local
-        private static void DiscardItemPostfix()
-            // ReSharper restore UnusedMember.Local
-        {
-            // Only check in last stage
-            if (Game.sceneManager.stageId != 7 || ArchipelagoClient.ServerData is not { } sessionData) return;
-
-            // Skip if trial keys are not enabled
-            if (!TrialKeysEnabled) return;
-
-            var items = UnityUtils.FindComponentsByTypeForced<Item>();
-
-            // Check if any token is in a trial open bound
-            foreach (var item in items)
-            {
-                if (item.currentItemType != ItemSystem.ItemType.SPMaxAdd) continue;
-
-                foreach (var eventOpen in Openers.Where(eventOpen =>
-                             !eventOpen.g_AllOpen && eventOpen.g_BC.Contains(item.transform.position)))
-                {
-                    eventOpen.OpenEvent();
-                    sessionData.OpenedTrials.Add(eventOpen.name);
-
-                    Object.Destroy(item.gameObject);
-
-                    return;
-                }
-            }
         }
     }
 
@@ -129,62 +127,10 @@ public static class TrialKeysPatches
             {
                 _lastOpenerEnteredName = opener.name;
 
-                Game.AppearEventPrompt("Drop a trial key to open the trial teleporter.");
+                Game.AppearEventPrompt("A trial key is needed to open the trial teleporter.");
 
                 return;
             }
-        }
-    }
-
-    // Disable usage of tokens (can only drop)
-    [HarmonyPatch(typeof(PlayerController), nameof(PlayerController.OnUseItemHotKeyDown))]
-    private static class UseItem
-    {
-        [HarmonyPrefix]
-        // ReSharper disable InconsistentNaming UnusedMember.Local
-        private static bool UseItemPrefix(PlayerController __instance, int index)
-            // ReSharper restore InconsistentNaming UnusedMember.Local
-        {
-            return CheckUseItem(__instance.g_Item.GetSelectItemType(index));
-        }
-
-        [HarmonyPrefix]
-        // ReSharper disable InconsistentNaming UnusedMember.Local
-        private static bool UseItemPrefix(PlayerController __instance)
-            // ReSharper restore InconsistentNaming UnusedMember.Local
-        {
-            return CheckUseItem(__instance.g_Item.GetSelectItemType(Game.GetItemSelectPos()));
-        }
-    }
-
-    // Patch display of token item name and description
-    [HarmonyPatch(typeof(ItemSystem), nameof(ItemSystem.GetItemHelp))]
-    private static class GetItemHelp
-    {
-        [HarmonyPrefix]
-        // ReSharper disable InconsistentNaming UnusedMember.Local
-        private static bool GetItemHelpPrefix(ref string __result, ItemSystem.ItemType Type)
-            // ReSharper restore InconsistentNaming UnusedMember.Local
-        {
-            if (Type != ItemSystem.ItemType.SPMaxAdd) return true;
-
-            __result = "Cannot be used.\nDrop on a trial path to unlock it.";
-            return false;
-        }
-    }
-
-    [HarmonyPatch(typeof(ItemSystem), nameof(ItemSystem.GetItemName))]
-    private static class GetItemName
-    {
-        [HarmonyPrefix]
-        // ReSharper disable InconsistentNaming UnusedMember.Local
-        private static bool GetItemNamePrefix(ref string __result, ItemSystem.ItemType Type)
-            // ReSharper restore InconsistentNaming UnusedMember.Local
-        {
-            if (Type != ItemSystem.ItemType.SPMaxAdd) return true;
-
-            __result = "Trial Key";
-            return false;
         }
     }
 }

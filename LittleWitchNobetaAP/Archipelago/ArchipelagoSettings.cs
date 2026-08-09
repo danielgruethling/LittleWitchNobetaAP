@@ -21,14 +21,6 @@ public class ArchipelagoSettings
         LoreKeeper,
     }
 
-    public enum GameDifficulty
-    {
-        Standard,
-        Advanced,
-        Hard,
-        BossRush
-    }
-
     public enum MagicPuzzleGateBehaviourType
     {
         Vanilla,
@@ -88,7 +80,6 @@ public class ArchipelagoSettings
     public bool EntranceRandomizationEnabled;
     public bool TrialKeysEnabled;
     public bool DeathLinkEnabled;
-    public int TrialKeyAmount;
     public int SoulGainBaseValue;
     public int SoulGainFactor;
 

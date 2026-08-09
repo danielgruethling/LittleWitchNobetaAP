@@ -118,27 +118,8 @@ public static class FillerItemPatches
                 return;
             }
 
-            // Special handling for Trial key items
-            if (itemType == ItemSystem.ItemType.SPMaxAdd)
-            {
-                Melon<LwnApMod>.Logger.Msg($"Attempting to add trial key to inventory");
-                for (var i = 0; i < items.g_iItemSize; i++)
-                {
-                    if (items.g_HoldItem[i] == ItemSystem.ItemType.SPMaxAdd) continue;
-
-                    Melon<LwnApMod>.Logger.Msg($"Adding trial key to item slot {i}");
-                    items.g_HoldItem[i] = itemType;
-                    Singletons.StageUi.itemBar.UpdateItemSprite(items.g_HoldItem);
-                    Game.CreateSoul(SoulSystem.SoulType.Money, wizardGirl.transform.position, 400);
-
-                    return;
-                }
-            }
             // If no empty slots, drop on floor where player is standing
-            else
-            {
-                itemSystem.NewItem(itemType, wizardGirl.transform.position, Quaternion.identity);
-            }
+            itemSystem.NewItem(itemType, wizardGirl.transform.position, Quaternion.identity);
         }));
     }
 

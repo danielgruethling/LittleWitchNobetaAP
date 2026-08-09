@@ -318,6 +318,8 @@ public class ArchipelagoClient : MonoBehaviour
                     GiveBossSoul(itemName);
                     break;
                 case "Trial Key":
+                    TrialKeysPatches.CollectedTrialKeys.Add(itemName);
+                    break;
                 case "Filler":
                     GiveFiller(itemName);
                     break;
@@ -473,9 +475,6 @@ public class ArchipelagoClient : MonoBehaviour
                 break;
             case "MP Souls":
                 GiveSouls(SoulSystem.SoulType.MP, Random.Next(1, 400));
-                break;
-            case "Trial Key":
-                GiveGameItem(ItemSystem.ItemType.SPMaxAdd);
                 break;
         }
     }

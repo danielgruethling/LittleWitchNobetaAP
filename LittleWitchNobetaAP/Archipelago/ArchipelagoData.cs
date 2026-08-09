@@ -472,7 +472,9 @@ public static class ArchipelagoData
         { "Abyss Lava Ruins Trial Clear", "Abyss Trial Clear" },
         { "Abyss Dark Tunnel Trial Clear", "Abyss Trial Clear" },
         { "Teleport", "Teleport" },
-        { "Trial Key", "Trial Key" }
+        { "Underground Trial Key", "Trial Key" },
+        { "Lava Ruins Trial Key", "Trial Key" },
+        { "Dark Tunnel Trial Key", "Trial Key" }
     };
 
 
@@ -779,7 +781,7 @@ public static class ArchipelagoData
                 LocationName = "Underground - Tania shortcut switch on statue side",
                 ItemName = "Underground Tania Shortcut Gate On Grand Hall Side",
                 // Triggers when lever is flipped
-                TriggerPath = "/Scene/Room09To07/Other/SceneSwitch01",
+                TriggerPath = "/Scene/Room09To07/Other/SceneSwitch02",
                 Actions = new()
                 {
                     new OpenDoorAction
@@ -810,7 +812,7 @@ public static class ArchipelagoData
                 LocationName = "Underground - Tania shortcut switch on Tania side",
                 ItemName = "Underground Tania Shortcut Gate On Tania Side",
                 // Triggers when lever is flipped
-                TriggerPath = "/Scene/Room09To07/Other/SceneSwitch02",
+                TriggerPath = "/Scene/Room09To07/Other/SceneSwitch01",
                 Actions = new()
                 {
                     new OpenDoorAction
@@ -1764,12 +1766,12 @@ public static class ArchipelagoData
 
     public static long GetLocationIdByName(string name)
     {
-        return Locations.Keys.ToImmutableSortedSet().IndexOf(name) + 1;
+        return Locations.Keys.ToImmutableSortedSet(StringComparer.Ordinal).IndexOf(name) + 1;
     }
 
     public static long GetItemIdByName(string name)
     {
-        return Items.Keys.ToImmutableSortedSet().IndexOf(name) + 1;
+        return Items.Keys.ToImmutableSortedSet(StringComparer.Ordinal).IndexOf(name) + 1;
     }
 
     public static class CutscenesToSkip
