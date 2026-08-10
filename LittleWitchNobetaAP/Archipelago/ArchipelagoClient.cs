@@ -101,14 +101,6 @@ public class ArchipelagoClient : MonoBehaviour
             var success = (LoginSuccessful)result;
             var stage = GameStage.Act02_01;
             var savePoint = -1;
-
-            ServerData.SetupSession(success.SlotData, Session.RoomState.Seed);
-            IsAuthenticated = true;
-
-            DeathLinkHandler = new DeathLinkHandler(Session.CreateDeathLinkService(), ServerData.SlotName);
-            Session.Locations.CompleteLocationChecksAsync(ServerData.CheckedLocations.ToArray());
-                
-            MovementPatches.BlockInput = false;
             Dictionary<string, object> slotData = success.SlotData;
             
             // do version check first
@@ -139,6 +131,14 @@ public class ArchipelagoClient : MonoBehaviour
                 _isAttemptingConnection = false;
                 return;
             }
+
+            ServerData.SetupSession(success.SlotData, Session.RoomState.Seed);
+            IsAuthenticated = true;
+
+            DeathLinkHandler = new DeathLinkHandler(Session.CreateDeathLinkService(), ServerData.SlotName);
+            Session.Locations.CompleteLocationChecksAsync(ServerData.CheckedLocations.ToArray());
+                
+            MovementPatches.BlockInput = false;
             
             foreach (var optionName in slotData.Keys)
             {
@@ -318,6 +318,8 @@ public class ArchipelagoClient : MonoBehaviour
                     GiveBossSoul(itemName);
                     break;
                 case "Trial Key":
+                    TrialKeysPatches.CollectedTrialKeys.Add(itemName);
+                    break;
                 case "Filler":
                     GiveFiller(itemName);
                     break;
@@ -474,9 +476,6 @@ public class ArchipelagoClient : MonoBehaviour
             case "MP Souls":
                 GiveSouls(SoulSystem.SoulType.MP, Random.Next(1, 400));
                 break;
-            case "Trial Key":
-                GiveGameItem(ItemSystem.ItemType.SPMaxAdd);
-                break;
         }
     }
 
@@ -500,25 +499,26 @@ public class ArchipelagoClient : MonoBehaviour
 
     private static void IncrementWitchAbility(string itemName)
     {
+        var attackMagicIncAmt = ServerData.Settings?.CondensedMagic ?? false ? ServerData.Settings?.MaxMagicLevel ?? 1 : 1;
         switch (itemName)
         {
             case "Arcane":
-                if (Singletons.GameSave != null) Singletons.GameSave.stats.secretMagicLevel += 1;
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.secretMagicLevel += attackMagicIncAmt;
                 break;
             case "Ice":
-                if (Singletons.GameSave != null) Singletons.GameSave.stats.iceMagicLevel += 1;
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.iceMagicLevel += attackMagicIncAmt;
                 break;
             case "Fire":
-                if (Singletons.GameSave != null) Singletons.GameSave.stats.fireMagicLevel += 1;
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.fireMagicLevel += attackMagicIncAmt;
                 break;
             case "Thunder":
-                if (Singletons.GameSave != null) Singletons.GameSave.stats.thunderMagicLevel += 1;
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.thunderMagicLevel += attackMagicIncAmt;
                 break;
             case "Wind":
-                if (Singletons.GameSave != null) Singletons.GameSave.stats.windMagicLevel += 1;
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.windMagicLevel += attackMagicIncAmt;
                 break;
             case "Mana Absorption":
-                if (Singletons.GameSave != null) Singletons.GameSave.stats.manaAbsorbLevel += 1;
+                if (Singletons.GameSave != null) Singletons.GameSave.stats.manaAbsorbLevel += attackMagicIncAmt;
                 break;
             case "Progressive Bag Upgrade":
                 MelonCoroutines.Start(LwnApMod.RunOnMainThread(() =>

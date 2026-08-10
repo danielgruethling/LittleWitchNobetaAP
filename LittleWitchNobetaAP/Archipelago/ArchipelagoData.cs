@@ -104,7 +104,7 @@ public static class ArchipelagoData
         { "Underground - Chest after fire", "Chest" },
         { "Underground - After fire magic switch", "Barrier" },
         { "Underground - Defeat enemies barrier", "Barrier" },
-        { "Underground - Defeat tania", "Bosses" },
+        { "Underground - Tania", "Bosses" },
         { "Underground - Tania boss arena barrier", "Barrier" },
         { "Underground - Tania shortcut switch on Tania side", "Metal Gate" },
         { "Underground - 98. Lost Maiden's Soul Shard from Tania", "Lore" },
@@ -472,7 +472,9 @@ public static class ArchipelagoData
         { "Abyss Lava Ruins Trial Clear", "Abyss Trial Clear" },
         { "Abyss Dark Tunnel Trial Clear", "Abyss Trial Clear" },
         { "Teleport", "Teleport" },
-        { "Trial Key", "Trial Key" }
+        { "Underground Trial Key", "Trial Key" },
+        { "Lava Ruins Trial Key", "Trial Key" },
+        { "Dark Tunnel Trial Key", "Trial Key" }
     };
 
 
@@ -519,7 +521,7 @@ public static class ArchipelagoData
             "04_SkillBookAgain" => "Underground - Cat absorption hint & gift",
             //underground_tania_locations
             "TreasureBox_Room08" => "Underground - Chest after fire",
-            "Boss_Level02" => "Underground - Defeat tania",
+            "Boss_Level02" => "Underground - Tania",
             // lava_ruins_start_locations
             "Room02_TreasureBox01" => "Lava Ruins - Chest on right ruins ledge at shotgun enemies magic switch",
             "Room02_TreasureBox02" => "Lava Ruins - Chest on scaffolding",
@@ -690,8 +692,6 @@ public static class ArchipelagoData
                 Actions = new()
                 {
                     new MagicWallReleaseAction
-                        { StageId = StageId.Shrine, Path = "/SEM/AreaEvent/Room10/Other/04.MagicWall" },
-                    new MagicWallReleaseAction
                         { StageId = StageId.Shrine, Path = "/SEM/AreaEvent/Room10/Other/05.MagicWall" },
                 },
             },
@@ -781,7 +781,7 @@ public static class ArchipelagoData
                 LocationName = "Underground - Tania shortcut switch on statue side",
                 ItemName = "Underground Tania Shortcut Gate On Grand Hall Side",
                 // Triggers when lever is flipped
-                TriggerPath = "/Scene/Room09To07/Other/SceneSwitch01",
+                TriggerPath = "/Scene/Room09To07/Other/SceneSwitch02",
                 Actions = new()
                 {
                     new OpenDoorAction
@@ -812,7 +812,7 @@ public static class ArchipelagoData
                 LocationName = "Underground - Tania shortcut switch on Tania side",
                 ItemName = "Underground Tania Shortcut Gate On Tania Side",
                 // Triggers when lever is flipped
-                TriggerPath = "/Scene/Room09To07/Other/SceneSwitch02",
+                TriggerPath = "/Scene/Room09To07/Other/SceneSwitch01",
                 Actions = new()
                 {
                     new OpenDoorAction
@@ -1301,7 +1301,7 @@ public static class ArchipelagoData
                 LocationName = "Abyss - Trap gate trigger",
                 ItemName = "Abyss Trap Gates",
                 // Triggers when player leaves the area
-                TriggerPath = "/SEM/AreaEvent/Act02/Other/FightDoorEnemy",
+                TriggerPath = "/SEM/AreaEvent/Act02/AreaCreateEnemy/03_MonsterCallCreate",
                 Actions = new()
                 {
                     new OpenDoorAction()
@@ -1431,7 +1431,7 @@ public static class ArchipelagoData
                 LocationName = "Abyss - Lava Ruins trial defeat maids enemy barrier",
                 ItemName = "Abyss Lava Ruins Trial Maid Enemy Barrier",
                 // Triggers when switch is destroyed
-                TriggerPath = "/SEM/AreaEvent/Act04/Other/MagicWall",
+                TriggerPath = "/SEM/AreaEvent/Act04/Other/Flag_Act04Clear",
                 Actions = new()
                 {
                     new MagicWallReleaseAction()
@@ -1503,6 +1503,8 @@ public static class ArchipelagoData
                 {
                     new SpecialAction(() =>
                     {
+                        if (ArchipelagoClient.ServerData.Settings?.ShortcutGateBehaviour ==
+                            ArchipelagoSettings.ShortcutGateBehaviourType.Vanilla) return;
                         var delay1 = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Room07/Other/DelayMoveFloor01");
                         var delay2 = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Room07/Other/DelayMoveFloor02");
                         var delay3 = UnityUtils.FindObjectByPath("/SEM/AreaEvent/Room07/Other/DelayMoveFloor03");
@@ -1549,6 +1551,28 @@ public static class ArchipelagoData
 
             new StageLoadAction()
             {
+                // This barrier only activates when the player enters the room from the start, meaning
+                // it must be enabled to block backwards movement.
+                StageId = StageId.Shrine,
+                ItemName = "Shrine First Magic Barrier",
+                Actions = new()
+                {
+                    new MagicWallStartAction() { Path = "/SEM/AreaEvent/Room03/Other/MagicWall_Room03" }
+                }
+            },
+            new StageLoadAction()
+            {
+                // The activation cutscene is right before the barrier. This is enabled to preserve logic,
+                // and also prevents the second switch from showing when moving backwards without the barrier item.
+                StageId = StageId.Shrine,
+                ItemName = "Shrine Second Magic Barrier",
+                Actions = new()
+                {
+                    new MagicWallStartAction() { Path = "/SEM/AreaEvent/Room04/Other/MagicWall_Room04" }
+                }
+            },
+            new StageLoadAction()
+            {
                 // Barrier normally only enables when entering from front, meaning won't block movement
                 // from Enranged Armor arena room.
                 StageId = StageId.Shrine,
@@ -1556,6 +1580,15 @@ public static class ArchipelagoData
                 Actions = new()
                 {
                     new MagicWallStartAction() { Path = "/SEM/AreaEvent/Room09/Other/MagicWall_Room09" }
+                }
+            },
+            new StageLoadAction()
+            {
+                StageId = StageId.Shrine,
+                ItemName = "Defeat Enraged Armor Barrier",
+                Actions = new()
+                {
+                    new MagicWallStartAction() { Path = "/SEM/AreaEvent/Room10/Other/05.MagicWall" }
                 }
             },
             new StageLoadAction()
@@ -1733,12 +1766,12 @@ public static class ArchipelagoData
 
     public static long GetLocationIdByName(string name)
     {
-        return Locations.Keys.ToImmutableSortedSet().IndexOf(name) + 1;
+        return Locations.Keys.ToImmutableSortedSet(StringComparer.Ordinal).IndexOf(name) + 1;
     }
 
     public static long GetItemIdByName(string name)
     {
-        return Items.Keys.ToImmutableSortedSet().IndexOf(name) + 1;
+        return Items.Keys.ToImmutableSortedSet(StringComparer.Ordinal).IndexOf(name) + 1;
     }
 
     public static class CutscenesToSkip
