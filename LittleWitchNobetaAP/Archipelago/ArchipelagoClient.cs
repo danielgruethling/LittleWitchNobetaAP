@@ -270,6 +270,7 @@ public class ArchipelagoClient : MonoBehaviour
                 case "Metal Gate":
                 case "Boss Souls":
                 case "Lore":
+                case "Trial Key":
                     GiveItem(receivedItem);
                     break;
             }
